@@ -1,0 +1,48 @@
+<launch>
+
+	<node name="display_controller" pkg="display_controller" type="main.py" output="screen" >
+	</node>
+
+	<node name="neck_controller" pkg="neck_controller" type="main.py" output="screen" >
+	</node>
+
+	<node name="mors_driver" pkg="mors_driver" type="main.py" output="screen" >
+	</node>
+
+	<node name="ears_controller" pkg="ears_controller" type="main.py" output="screen" >
+	</node>
+
+	<node name="respeaker_controller" pkg="respeaker_controller" type="main.py" output="screen" >
+	</node>
+
+	<node name="speakers_controller" pkg="speakers_controller" type="main.py" output="screen" >
+	</node>
+
+	<node name="head_controller" pkg="head_controller" type="main.py" output="screen" >
+	</node>
+
+	<node name="cv_camera" pkg="cv_camera" type="cv_camera_node" output="screen" >
+	</node>
+
+    <arg name="hmm" default="$(find voice_recognizer)/model/zero_ru_cont_8k_v3/zero_ru.cd_cont_4000" />
+    <arg name="kws" default="$(find voice_recognizer)/config/kwslist.kwslist" />
+    <arg name="dict" default= "$(find voice_recognizer)/config/dictionary.dic" />
+	<arg name="gram" default="$(find voice_recognizer)/config/gram" />
+	<arg name="grammar" default="robot_cmd" />
+	<arg name="rule" default="commands" />
+
+	<node name="asr_control" pkg="voice_recognizer" type="asr_control.py" output="screen" >
+		<param name="hmm" value="$(arg hmm)" />
+		<param name="dict" value="$(arg dict)" />
+		<param name="gram" value="$(arg gram)" />
+		<param name="grammar" value="$(arg grammar)" />
+		<param name="rule" value="$(arg rule)" />
+	</node>
+
+    <node name="kws_control" pkg="voice_recognizer" type="kws_control.py" output="screen" >
+        <param name="hmm" value="$(arg hmm)"/>
+        <param name="dict" value="$(arg dict)"/>
+        <param name="kws" value="$(arg kws)"/>
+    </node>
+
+</launch>

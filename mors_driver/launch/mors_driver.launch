@@ -1,0 +1,6 @@
+<launch>
+
+	<node name="mors_driver_node" pkg="mors_driver" type="main.py" output="screen" >
+	</node>
+
+</launch>

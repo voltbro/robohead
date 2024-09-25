@@ -1,0 +1,6 @@
+<launch>
+
+	<node name="speakers_controller_node" pkg="speakers_controller" type="main.py" output="screen" >
+	</node>
+
+</launch>
