@@ -4,7 +4,7 @@ import rospy
 from ears_controller.srv import EarsSetAngle, EarsSetAngleResponse
 class NeckController():
     def __init__(self, node_name:str="ears_controller_node", std_left_angle:int=0, std_right_angle:int=0,
-                 servo1_channel:int=5, servo2_channel:int=4, service_name:str="EarsSetAngle")->None:
+                 servo1_channel:int=11, servo2_channel:int=10, service_name:str="EarsSetAngle")->None:
         self.__kit = ServoKit(channels=16)
         self.__servo1 = servo1_channel
         self.__servo2 = servo2_channel

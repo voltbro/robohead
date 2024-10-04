@@ -42,8 +42,7 @@ class STD_STATE():
             ear_angle_r = 0 # Change it
             self.srv_set_ears(ear_angle_l, ear_angle_r)
 
-        if self.srv_play_sound!=None:
-            pass
+
             # audio = "/sit.mp3" # Change it
             # path = self.path_to_media+"/audio/"+audio
             # isBlocking = True # Change it

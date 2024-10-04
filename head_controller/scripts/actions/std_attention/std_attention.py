@@ -59,9 +59,8 @@ class STD_ATTENTION():
 
         if self.srv_play_sound!=None:
             path = "/attention.mp3" # Change it
-            isBlocking = False # Change it
+            isBlocking = True # Change it
             self.srv_play_sound(self._script_path+path, isBlocking)
         
         # продолжить воспроизводить аудио, которое запомнили в начале
-        # self.srv_mors_action(1) # Встаем
         return 0

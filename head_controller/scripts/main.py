@@ -1,17 +1,33 @@
+#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*-
+
+import os
+import sys
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 import rospy
 
 import importlib
-import actions.std_attention.std_attention
-import actions.std_lay.std_lay
-import actions.std_paw.std_paw
-import actions.std_sit.std_sit
-import actions.std_state.std_state
-import actions.std_voice.std_voice
-import actions.std_sleep.std_sleep
-import actions.std_wakeup.std_wakeup
+from actions.std_attention import std_attention
+from actions.std_lay import std_lay
+from actions.std_paw import std_paw
+from actions.std_sit import std_sit
+from actions.std_state import std_state
+from actions.std_voice import std_voice
+from actions.std_sleep import std_sleep
+from actions.std_wakeup import std_wakeup
+
+# from .actions.std_attention import std_attention
+# import .actions.std_lay.std_lay
+# import .actions.std_paw.std_paw
+# import .actions.std_sit.std_sit
+# import .actions.std_state.std_state
+# import .actions.std_voice.std_voice
+# import .actions.std_sleep.std_sleep
+# import .actions.std_wakeup.std_wakeup
 
 from mors_driver.srv import TwistDuration, PoseArrayDuration, JointTrajectoryPointDuration
 from mors_driver.srv import TwistDurationRequest, PoseArrayDurationRequest, JointTrajectoryPointDurationRequest
@@ -27,7 +43,7 @@ from ears_controller.srv import EarsSetAngle
 from speakers_controller.srv import playSound
 
 import time
-import os
+
 
 class HeadController():
 
@@ -35,28 +51,52 @@ class HeadController():
         self._script_path = os.path.dirname(os.path.abspath(__file__))
         print("Script path: "+self._script_path)
         rospy.init_node("head_controller_node")
+        
+        self._useMors = rospy.get_param('~useMors', 0)
+        print(f"Use mors: {self._useMors}")
 
         rospy.wait_for_service('displayControllerPlay')
         rospy.wait_for_service('NeckSetAngle')
         rospy.wait_for_service('EarsSetAngle')
-        rospy.wait_for_service('SetMorsAction')
-        print("Servives Inited!")
-        
+        rospy.wait_for_service('playSound')
+
         self._service_display_player = rospy.ServiceProxy('displayControllerPlay', displayControllerPlay)
         self._service_set_neck = rospy.ServiceProxy('NeckSetAngle', NeckSetAngle)
         self._service_set_ears = rospy.ServiceProxy('EarsSetAngle', EarsSetAngle)
         self._service_play_sound = rospy.ServiceProxy('playSound', playSound)
+    
 
-        self._srv_mors_mode = rospy.ServiceProxy('SetMorsMode', QuadrupedCmd)
-        self._srv_mors_action = rospy.ServiceProxy('SetMorsAction', QuadrupedCmd)
-        self._srv_mors_cmd_vel = rospy.ServiceProxy('SetMorsVel', TwistDuration)
-        self._srv_mors_cmd_pos = rospy.ServiceProxy('SetMorsPos', TwistDuration)
-        self._srv_mors_ef_pos = rospy.ServiceProxy('SetMorsEfPos', PoseArrayDuration)
-        self._srv_mors_joint_pos = rospy.ServiceProxy('SetMorsJointPos', JointTrajectoryPointDuration)
-        self._srv_mors_joints_kp = rospy.ServiceProxy('SetMorsJointsKp', JointsCmd)
-        self._srv_mors_joints_kd = rospy.ServiceProxy('SetMorsJointsKp', JointsCmd)
-        self._srv_mors_stride_height = rospy.ServiceProxy('SetMorsStrideHeight', QuadrupedCmd)
+        if self._useMors:
+            rospy.wait_for_service('SetMorsMode')
+            rospy.wait_for_service('SetMorsAction')
+            rospy.wait_for_service('SetMorsVel')
+            rospy.wait_for_service('SetMorsPos')
+            rospy.wait_for_service('SetMorsEfPos')
+            rospy.wait_for_service('SetMorsJointPos')
+            rospy.wait_for_service('SetMorsJointsKp')
+            rospy.wait_for_service('SetMorsJointsKd')
+            rospy.wait_for_service('SetMorsStrideHeight')
+            self._srv_mors_mode = rospy.ServiceProxy('SetMorsMode', QuadrupedCmd)
+            self._srv_mors_action = rospy.ServiceProxy('SetMorsAction', QuadrupedCmd)
+            self._srv_mors_cmd_vel = rospy.ServiceProxy('SetMorsVel', TwistDuration)
+            self._srv_mors_cmd_pos = rospy.ServiceProxy('SetMorsPos', TwistDuration)
+            self._srv_mors_ef_pos = rospy.ServiceProxy('SetMorsEfPos', PoseArrayDuration)
+            self._srv_mors_joint_pos = rospy.ServiceProxy('SetMorsJointPos', JointTrajectoryPointDuration)
+            self._srv_mors_joints_kp = rospy.ServiceProxy('SetMorsJointsKp', JointsCmd)
+            self._srv_mors_joints_kd = rospy.ServiceProxy('SetMorsJointsKd', JointsCmd)
+            self._srv_mors_stride_height = rospy.ServiceProxy('SetMorsStrideHeight', QuadrupedCmd)
+        else:
+            self._srv_mors_mode = None
+            self._srv_mors_action = None
+            self._srv_mors_cmd_vel = None
+            self._srv_mors_cmd_pos = None
+            self._srv_mors_ef_pos = None
+            self._srv_mors_joint_pos = None
+            self._srv_mors_joints_kp = None
+            self._srv_mors_joints_kd = None
+            self._srv_mors_stride_height = None
 
+        print("Servives Inited!")
 
         self._sub_cmd_from_voice = rospy.Subscriber("/head/cmd_from_voice", String, self.process_cmd)
         self._sub_cmd_from_voice = rospy.Subscriber("/head/kws_data", String, self.process_kws)
@@ -75,8 +115,8 @@ class HeadController():
         self.__sound_direction = msg.data
 
     def run(self):
-        importlib.reload(actions.std_state.std_state)
-        self.action_std_state = actions.std_state.std_state.STD_STATE(srv_display_player=self._service_display_player,
+        importlib.reload(std_state)
+        self.action_std_state = std_state.STD_STATE(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -101,8 +141,8 @@ class HeadController():
         cmd = self._cmd
         if cmd != None:
             if cmd=="голос":
-                importlib.reload(actions.std_voice.std_voice)
-                self.action_std_voice = actions.std_voice.std_voice.STD_VOICE(srv_display_player=self._service_display_player,
+                importlib.reload(std_voice)
+                self.action_std_voice = std_voice.STD_VOICE(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -119,8 +159,8 @@ class HeadController():
                 resp = self.action_std_voice.start_action()
 
             elif cmd=="сидеть":
-                importlib.reload(actions.std_sit.std_sit)
-                self.action_std_sit = actions.std_sit.std_sit.STD_SIT(srv_display_player=self._service_display_player,
+                importlib.reload(std_sit)
+                self.action_std_sit = std_sit.STD_SIT(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -137,8 +177,8 @@ class HeadController():
                 resp = self.action_std_sit.start_action()
 
             elif cmd=="лежать":
-                importlib.reload(actions.std_lay.std_lay)
-                self.action_std_lay = actions.std_lay.std_lay.STD_LAY(srv_display_player=self._service_display_player,
+                importlib.reload(std_lay)
+                self.action_std_lay = std_lay.STD_LAY(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -155,8 +195,8 @@ class HeadController():
                 resp = self.action_std_lay.start_action()
 
             elif cmd=="дай левую лапу":
-                importlib.reload(actions.std_paw.std_paw)
-                self.action_std_paw = actions.std_paw.std_paw.STD_PAW(srv_display_player=self._service_display_player,
+                importlib.reload(std_paw)
+                self.action_std_paw = std_paw.STD_PAW(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -173,8 +213,8 @@ class HeadController():
                 resp = self.action_std_paw.start_action("left")
 
             elif cmd=="дай правую лапу":
-                importlib.reload(actions.std_paw.std_paw)
-                self.action_std_paw = actions.std_paw.std_paw.STD_PAW(srv_display_player=self._service_display_player,
+                importlib.reload(std_paw)
+                self.action_std_paw = std_paw.STD_PAW(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -191,8 +231,8 @@ class HeadController():
                 resp = self.action_std_paw.start_action("right")
 
             elif cmd=="дай другую лапу":
-                importlib.reload(actions.std_paw.std_paw)
-                self.action_std_paw = actions.std_paw.std_paw.STD_PAW(srv_display_player=self._service_display_player,
+                importlib.reload(std_paw)
+                self.action_std_paw = std_paw.STD_PAW(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -208,8 +248,8 @@ class HeadController():
                                             sound_direction=self.__sound_direction)
                 resp = self.action_std_paw.start_action("switch")
             elif cmd=="усни":
-                importlib.reload(actions.std_sleep.std_sleep)
-                self.action_std_sleep = actions.std_sleep.std_sleep.STD_SLEEP(srv_display_player=self._service_display_player,
+                importlib.reload(std_sleep)
+                self.action_std_sleep = std_sleep.STD_SLEEP(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -225,8 +265,8 @@ class HeadController():
                                             sound_direction=self.__sound_direction)
                 resp = self.action_std_sleep.start_action()
             elif cmd=="проснись":
-                importlib.reload(actions.std_wakeup.std_wakeup)
-                self.action_std_wakeup = actions.std_wakeup.std_wakeup.STD_WAKEUP(srv_display_player=self._service_display_player,
+                importlib.reload(std_wakeup)
+                self.action_std_wakeup = std_wakeup.STD_WAKEUP(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -242,8 +282,8 @@ class HeadController():
                                             sound_direction=self.__sound_direction)
                 resp = self.action_std_wakeup.start_action()
 
-        importlib.reload(actions.std_state.std_state)
-        self.action_std_state = actions.std_state.std_state.STD_STATE(srv_display_player=self._service_display_player,
+        importlib.reload(std_state)
+        self.action_std_state = std_state.STD_STATE(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,
@@ -276,8 +316,8 @@ class HeadController():
         # self._service_set_ears(10,10)
         # resp = self._service_display_player("wait_cmd.png")
 
-        importlib.reload(actions.std_attention.std_attention)
-        self.action_std_attention = actions.std_attention.std_attention.STD_ATTENTION(srv_display_player=self._service_display_player,
+        importlib.reload(std_attention)
+        self.action_std_attention = std_attention.STD_ATTENTION(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
                                             srv_set_ears=self._service_set_ears,
                                             srv_play_sound=self._service_play_sound,

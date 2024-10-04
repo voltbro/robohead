@@ -39,9 +39,12 @@ class STD_SIT():
         self.srv_set_ears(ear_angle_l, ear_angle_r)
 
         path = "/sit.mp3"
-        isBlocking = False
+        if self.srv_mors_action!=None:
+            isBlocking = False # Change it
+        else:
+            isBlocking = True
         self.srv_play_sound(self._script_path+path, isBlocking)
 
-
-        self.srv_mors_action(1) # встаем
-        self.srv_mors_action(6) # садимся
+        if self.srv_mors_action!=None:
+            self.srv_mors_action(1) # встаем
+            self.srv_mors_action(6) # садимся

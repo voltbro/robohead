@@ -33,7 +33,9 @@ class DisplayController():
 
     def img_sub(self, image_msg:Image):
         cv_image = self._cvBridge.imgmsg_to_cv2(image_msg, "bgr8")
-        self.fb[:] = cv_image
+        # self.fb[:] = cv_image
+        self.fb[:]=cv2.rotate(cv_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        
 
     def requester(self, request:displayControllerPlay):
         self.showing_file.value = request.FileName
@@ -68,8 +70,8 @@ class DisplayController():
                 lineType)
                 bottomLeftCornerOfText = (bottomLeftCornerOfText[0], bottomLeftCornerOfText[1]+40)
 
-            # self.fb[:]=cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
-            self.fb[:] = img
+            self.fb[:]=cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            # self.fb[:] = img
         except Exception as e:
             print(e)
         
@@ -96,8 +98,8 @@ class DisplayController():
                             src = cv2.imread(path)
 
                             try:
-                                # self.fb[:1080, :1080] = cv2.rotate(src, cv2.ROTATE_90_CLOCKWISE)
-                                self.fb[:] = src
+                                self.fb[:1080, :1080] = cv2.rotate(src, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                                # self.fb[:] = src
                                 self.response.value = 0
                             except Exception as e:
                                 self.drawError(f"Couldn`t show image.\nDetails: {e}")
@@ -129,8 +131,8 @@ class DisplayController():
                             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                         else:
                             try:
-                                # self.fb[:] = cv2.rotate(src, cv2.ROTATE_90_CLOCKWISE)
-                                self.fb[:] = src
+                                self.fb[:] = cv2.rotate(src, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                                # self.fb[:] = src
                                 self.response.value = 0
                                 cv2.waitKey(20)
                             except Exception as e:

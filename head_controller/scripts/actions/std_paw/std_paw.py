@@ -30,16 +30,16 @@ class STD_PAW():
 
         # Добавить остановку текущего аудио, и его запоминание
 
-        neck_angle_v = 15 # Change it
-        neck_angle_h = 0 # Change it
-        duration=1 # Change it
-        self.srv_set_neck(neck_angle_v, neck_angle_h, duration)
+        if self.srv_set_neck!=None:
+            neck_angle_v = 15 # Change it
+            neck_angle_h = 0 # Change it
+            duration=1 # Change it
+            self.srv_set_neck(neck_angle_v, neck_angle_h, duration)
 
-        ear_angle_l = 10 # Change it
-        ear_angle_r = 10 # Change it
-        self.srv_set_ears(ear_angle_l, ear_angle_r)
-
-        
+        if self.srv_set_ears:
+            ear_angle_l = 10 # Change it
+            ear_angle_r = 10 # Change it
+            self.srv_set_ears(ear_angle_l, ear_angle_r)
 
         if paw=="left":
             self.last_paw = "left"
@@ -47,7 +47,10 @@ class STD_PAW():
             self.srv_display_player(self._script_path+path)
 
             path = "/left_paw.mp3" # Change it
-            isBlocking = False # Change it
+            if self.srv_mors_action!=None:
+                isBlocking = False # Change it
+            else:
+                isBlocking = True
             self.srv_play_sound(self._script_path+path, isBlocking)
         elif paw=="right":
             self.last_paw = "right"
@@ -55,7 +58,10 @@ class STD_PAW():
             self.srv_display_player(self._script_path+path)
 
             path = "/right_paw.mp3" # Change it
-            isBlocking = False # Change it
+            if self.srv_mors_action!=None:
+                isBlocking = False # Change it
+            else:
+                isBlocking = True
             self.srv_play_sound(self._script_path+path, isBlocking)
         elif paw=="switch":
             if self.last_paw=="right":
@@ -72,10 +78,18 @@ class STD_PAW():
                 self.srv_display_player(self._script_path+path)
 
                 path = "/right_paw.mp3" # Change it
-                isBlocking = False # Change it
+                if self.srv_mors_action!=None:
+                    isBlocking = False # Change it
+                else:
+                    isBlocking = True
                 self.srv_play_sound(self._script_path+path, isBlocking)
-        self.srv_mors_action(1) # встаем
-        self.srv_mors_action(3) # даем лапу
+        
+        if self.srv_mors_action!=None:
+            self.srv_mors_action(1) # встаем
+            if self.last_paw=="left":
+                self.srv_mors_action(7) # даем лапу
+            if self.last_paw=="right":
+                self.srv_mors_action(3) # даем лапу
         # продолжить воспроизводить аудио, которое запомнили в начале
         
         return 0

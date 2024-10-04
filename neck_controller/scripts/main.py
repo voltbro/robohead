@@ -7,7 +7,7 @@ import math
 
 class NeckController():
     def __init__(self, node_name:str="neck_controller_node", std_vertical_angle:int=0, std_horizontal_angle:int=0,
-                 servo1_channel:int=8, servo2_channel:int=9, service_name:str="NeckSetAngle")->None:
+                 servo1_channel:int=9, servo2_channel:int=8, service_name:str="NeckSetAngle")->None:
         self.__kit = ServoKit(channels=16)
         self.__servo1 = servo1_channel
         self.__servo2 = servo2_channel

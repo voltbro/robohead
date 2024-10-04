@@ -43,5 +43,6 @@ class STD_WAKEUP():
         # self.srv_play_sound(self._script_path+path, isBlocking)
         
         # продолжить воспроизводить аудио, которое запомнили в начале
-        self.srv_mors_action(1)
+        if self.srv_mors_action!=None:
+            self.srv_mors_action(1)
         return 0

@@ -11,6 +11,7 @@ class SpeakersController():
         self.__vlc_player = self.__vlc_obj.media_player_new() 
         if (0<=std_volume<=100):
             self.__vlc_player.audio_set_volume(std_volume)
+            self.volume = std_volume
         else:
             print("error volume")
 
@@ -44,6 +45,7 @@ class SpeakersController():
         
         # setting media to the player
         self.__vlc_player.set_media(vlcmedia)
+        self.__vlc_player.audio_set_volume(self.volume)
         self.__vlc_player.play()
         time.sleep(0.1)
         if breakable:
@@ -57,7 +59,9 @@ class SpeakersController():
         return self.__vlc_player.is_playing()
     
     def set_volume(self, volume:int=50)->None:
-        self.__vlc_player.audio_set_volume(volume)
+        if (0<=volume<=100):
+            self.volume = volume
+            # self.__vlc_player.audio_set_volume(volume)
 
 if __name__ == "__main__":
     SpeakersController()

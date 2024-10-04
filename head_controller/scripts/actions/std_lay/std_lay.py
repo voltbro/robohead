@@ -33,36 +33,44 @@ class STD_LAY():
         
         # Добавить остановку текущего аудио, и его запоминание
 
-        path = "/lay.png" # Change it
-        self.srv_display_player(self._script_path+path)
+        if self.srv_display_player!=None:
+            path = "/lay.png" # Change it
+            self.srv_display_player(self._script_path+path)
 
-        neck_angle_v = 15 # Change it
-        neck_angle_h = 0 # Change it
-        duration=1 # Change it
-        self.srv_set_neck(neck_angle_v, neck_angle_h, duration)
+        if self.srv_set_neck!=None:
+            neck_angle_v = 15 # Change it
+            neck_angle_h = 0 # Change it
+            duration=1 # Change it
+            self.srv_set_neck(neck_angle_v, neck_angle_h, duration)
 
-        ear_angle_l = 10 # Change it
-        ear_angle_r = 10 # Change it
-        self.srv_set_ears(ear_angle_l, ear_angle_r)
+        if self.srv_set_ears!=None:
+            ear_angle_l = 10 # Change it
+            ear_angle_r = 10 # Change it
+            self.srv_set_ears(ear_angle_l, ear_angle_r)
 
-        path = "/lay.mp3" # Change it
-        isBlocking = False # Change it
-        self.srv_play_sound(self._script_path+path, isBlocking)
+        if self.srv_play_sound!=None:
+            path = "/lay.mp3" # Change it
+            if self.srv_mors_action!=None:
+                isBlocking = False # Change it
+            else:
+                isBlocking = True
+            self.srv_play_sound(self._script_path+path, isBlocking)
         
-        # продолжить воспроизводить аудио, которое запомнили в начале
-        self.srv_mors_action(1) # встаем, если лежали
-        self.srv_mors_mode(2) # режим корпуса
+        if self.srv_mors_action!=None:
+            # продолжить воспроизводить аудио, которое запомнили в начале
+            self.srv_mors_action(1) # встаем, если лежали
+            self.srv_mors_mode(2) # режим корпуса
 
-        request = TwistDurationRequest()
-        request.data = Twist()
-        request.data.linear.z = -0.095
-        request.duration = 1
-        self.srv_mors_cmd_pos(request)
-        time.sleep(3)
-        request.data.linear.z = 0
-        self.srv_mors_cmd_pos(request)
-        time.sleep(1)
-        self.srv_mors_mode(0) # стандартный режим - ходьба
+            request = TwistDurationRequest()
+            request.data = Twist()
+            request.data.linear.z = -0.095
+            request.duration = 1
+            self.srv_mors_cmd_pos(request)
+            time.sleep(3)
+            request.data.linear.z = 0
+            self.srv_mors_cmd_pos(request)
+            time.sleep(1)
+            self.srv_mors_mode(0) # стандартный режим - ходьба
 
 
         
