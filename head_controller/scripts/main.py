@@ -19,6 +19,7 @@ from actions.std_state import std_state
 from actions.std_voice import std_voice
 from actions.std_sleep import std_sleep
 from actions.std_wakeup import std_wakeup
+from actions.std_low_bat import std_low_bat
 
 # from .actions.std_attention import std_attention
 # import .actions.std_lay.std_lay
@@ -37,6 +38,7 @@ from mors.srv import QuadrupedCmd, QuadrupedCmdRequest, QuadrupedCmdResponse # Ð
 from mors.srv import JointsCmd, JointsCmdRequest, JointsCmdResponse
 
 from std_msgs.msg import String, Empty, Int32
+from sensor_msgs.msg import BatteryState
 from display_controller.srv import displayControllerPlay
 from neck_controller.srv import NeckSetAngle
 from ears_controller.srv import EarsSetAngle
@@ -98,18 +100,26 @@ class HeadController():
 
         print("Servives Inited!")
 
-        self._sub_cmd_from_voice = rospy.Subscriber("/head/cmd_from_voice", String, self.process_cmd)
-        self._sub_cmd_from_voice = rospy.Subscriber("/head/kws_data", String, self.process_kws)
-        self._sub_cmd_from_voice = rospy.Subscriber("/head/voice_recognizer/grammar_not_found", Empty, self.default_state)
+        rospy.Subscriber("/head/cmd_from_voice", String, self.process_cmd)
+        rospy.Subscriber("/head/kws_data", String, self.process_kws)
+        rospy.Subscriber("/head/voice_recognizer/grammar_not_found", Empty, self.select_state)
 
-        self._sub_cmd_from_voice = rospy.Subscriber("/head/sound_direction", Int32, self.__sound_direction_callback)
+        rospy.Subscriber("/head/sound_direction", Int32, self.__sound_direction_callback)
+        rospy.Subscriber("/head/bat", BatteryState, self.__battery_state_callback)
         
         self._hand = 'left'
         self.is_action = False
         self._cmd = None
         self.__sound_direction = 270
+        self._battery_voltage = 4.2
+        self._battery_current = 1
         
         self.run()
+
+    def __battery_state_callback(self, msg:BatteryState):
+        self._battery_voltage = msg.voltage
+        self._battery_current = msg.current
+
 
     def __sound_direction_callback(self, msg:Int32):
         self.__sound_direction = msg.data
@@ -135,8 +145,25 @@ class HeadController():
 
         rospy.spin()
 
-    def default_state(self, msg:Empty):
-        
+    def select_state(self, msg:Empty):
+        if (self._battery_voltage<3.59):
+            importlib.reload(std_low_bat)
+            self.action_std_low_bat = std_low_bat.STD_LOW_BAT(srv_display_player=self._service_display_player,
+                                        srv_set_neck=self._service_set_neck,
+                                        srv_set_ears=self._service_set_ears,
+                                        srv_play_sound=self._service_play_sound,
+                                        srv_mors_mode=self._srv_mors_mode,
+                                        srv_mors_action=self._srv_mors_action,
+                                        srv_mors_cmd_vel=self._srv_mors_cmd_vel,
+                                        srv_mors_cmd_pos=self._srv_mors_cmd_pos,
+                                        srv_mors_ef_pos=self._srv_mors_ef_pos,
+                                        srv_mors_joint_pos=self._srv_mors_joint_pos,
+                                        srv_mors_joints_kp=self._srv_mors_joints_kp,
+                                        srv_mors_joints_kd=self._srv_mors_joints_kd,
+                                        srv_mors_stride_height=self._srv_mors_stride_height,
+                                        sound_direction=self.__sound_direction)
+            resp = self.action_std_low_bat.start_action()
+            return   
         rospy.sleep(0.1)
         cmd = self._cmd
         if cmd != None:
