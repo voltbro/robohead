@@ -22,7 +22,7 @@ class MorsDriver():
                  srv_vel_name:str="SetMorsVel", topic_vel_name:str="head/cmd_vel",
                  srv_pos_name:str="SetMorsPos", topic_pos_name:str="head/cmd_pose",
                  srv_ef_pos_name:str="SetMorsEfPos", topic_ef_pos_name:str="head/ef_position/command",
-                 srv_joint_pos_name:str="SetMorsJointPos", topic_joint_pos_name:str="head/joint_group_position_controller/command",
+                 srv_joint_pos_name:str="SetMorsJointPos", topic_joint_pos_name:str="/head/joint_group_position_controller/command",
                  srv_robot_action_name_out:str="robot_action", srv_robot_mode_name_out:str="robot_mode",
                  srv_robot_action_name_in:str="SetMorsAction", srv_robot_mode_name_in:str="SetMorsMode",
                  srv_joints_kp_name_out:str="joints_kp", srv_joints_kd_name_out:str="joints_kd",
@@ -162,6 +162,7 @@ class MorsDriver():
                 stamp, goal, dur = self.goal_tuple
                 if (type(goal)!=JointTrajectoryPoint):
                     self._set_joint_pos(JointTrajectoryPoint())
+                    # print("Skip")
                     continue
 
                 if (stamp>prev_stamp):
@@ -179,6 +180,14 @@ class MorsDriver():
                 
                 cur_time = time.time()
                 cmd = JointTrajectoryPoint()
+                # print(self.prev_goal.positions)
+                # print(self.prev_goal.velocities)
+                # print(self.prev_goal.accelerations)
+                # print(self.prev_goal.effort)
+                # print(goal.positions)
+                # print(goal.velocities)
+                # print(goal.accelerations)
+                # print(goal.effort)
                 for i in range(12):
                     cmd.positions.append(self.__generate_val(cur=self.prev_goal.positions[i], goal=goal.positions[i], duration=dur, start_time=start_time, current_time=cur_time))
                     cmd.velocities.append(self.__generate_val(cur=self.prev_goal.velocities[i], goal=goal.velocities[i], duration=dur, start_time=start_time, current_time=cur_time))

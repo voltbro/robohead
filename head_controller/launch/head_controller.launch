@@ -19,7 +19,7 @@
 	</node>
 
 	<node name="head_controller" pkg="head_controller" type="main.py" output="screen" >
-		<param name="useMors" value="1" />
+		<param name="useMors" value="0" />
 	</node>
 
 	<node name="cv_camera" pkg="cv_camera" type="cv_camera_node" output="screen" >

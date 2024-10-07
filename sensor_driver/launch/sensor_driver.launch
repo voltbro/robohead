@@ -1,0 +1,6 @@
+<launch>
+
+	<node name="sensor_driver_node" pkg="sensor_driver" type="main.py" output="screen" >
+	</node>
+
+</launch>

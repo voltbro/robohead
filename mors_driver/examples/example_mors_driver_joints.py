@@ -65,6 +65,7 @@ if __name__ == '__main__':
     cmd_joint_msg.velocities = [0]*12
     cmd_joint_msg.effort = [0]*12
     cmd_joint_msg.positions = [0]*12
+    cmd_joint_msg.accelerations = [0]*12
  
     rospy.loginfo("Demo Joints: Start")
     set_action_client(2) # ОБЯЗАТЕЛЬНО ЛОЖИМСЯ ПЕРЕД ЗАПУСКОМ РЕЖИМА УПРАВЛЕНИЯ ДВИГАТЕЛЯМИ
@@ -89,7 +90,8 @@ if __name__ == '__main__':
     rospy.sleep(1.5)
 
     k = 1
-    for i in range(2):
+    for i in range(4):
+        print(i, k)
         theta1 = 0.4*k
         theta2 = 1.0*k
         theta3 = 1.57*k
@@ -113,3 +115,4 @@ if __name__ == '__main__':
     set_joints_kp([0.0]*12)
     set_joints_kd([0.0]*12)
     rospy.loginfo("Demo Joints: Stop")
+    set_mode_client(0)
