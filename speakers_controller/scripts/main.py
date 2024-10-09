@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import rospy
 from speakers_controller.srv import playSound, playSoundResponse, setVolume, setVolumeResponse, isPlaying, isPlayingResponse, stopPlaying, stopPlayingResponse
 import time

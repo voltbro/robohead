@@ -113,7 +113,7 @@ class HeadController():
         self.__sound_direction = 270
         self._battery_voltage = 4.2
         self._battery_current = 1
-        
+        time.sleep(15)
         self.run()
 
     def __battery_state_callback(self, msg:BatteryState):
@@ -146,7 +146,7 @@ class HeadController():
         rospy.spin()
 
     def select_state(self, msg:Empty):
-        if (self._battery_voltage<3.59):
+        if (self._battery_voltage<3.3):
             importlib.reload(std_low_bat)
             self.action_std_low_bat = std_low_bat.STD_LOW_BAT(srv_display_player=self._service_display_player,
                                         srv_set_neck=self._service_set_neck,
