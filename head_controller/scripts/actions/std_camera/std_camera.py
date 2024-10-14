@@ -56,8 +56,16 @@ class STD_CAMERA():
         image_sub = rospy.Subscriber("cv_camera/image_raw", Image, callback=self.img_proc) # Подписчик на топик потока с камеры
         self.image_pub = rospy.Publisher("head/display/raw_image", Image, queue_size=1)
         bat_sub = rospy.Subscriber("/head/bat", BatteryState, self.__battery_state_callback)
-        touch = evdev.InputDevice('/dev/input/event1')
+
+
+        for i in [0,1]:
+            touch = evdev.InputDevice(f"/dev/input/event{i}")
+            print(touch.name, f"/dev/input/event{i}")
+            if ("waveshare" in str(touch.name).lower()):
+                break
+
         touch.grab()
+        
         start_time = time.time()
         self.p = (0,0)
         flag = 0

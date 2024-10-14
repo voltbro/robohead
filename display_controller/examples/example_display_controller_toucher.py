@@ -37,10 +37,14 @@ lcd.blit(defaultFont.render("Hello World!", False, (0, 0, 0)),(500, 500))
 refresh()
 time.sleep(0.5)
 
-touch = evdev.InputDevice('/dev/input/event1')
+
+for i in [0,1]:
+    touch = evdev.InputDevice(f"/dev/input/event{i}")
+    print(touch.name, f"/dev/input/event{i}")
+    if ("waveshare" in str(touch.name).lower()):
+        break
 
 touch.grab()
-print(touch)
 
 def getPixelsFromCoordinates(coords):
     x = coords[0]/4095*1079
