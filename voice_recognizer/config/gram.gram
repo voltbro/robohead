@@ -4,7 +4,7 @@ grammar robot_cmd;
 
 public <commands> = <command> ;
 
-<command> = <command_1> | <command_2> | <command_3> | <command_4> | <command_5> | <command_6>;
+<command> = <command_1> | <command_2> | <command_3> | <command_4> | <command_5> | <command_6> | <command_7>;
 
 <command_1> = голос ;
 <command_2> = дай ( другую | левую | правую ) лапу ;
@@ -12,3 +12,4 @@ public <commands> = <command> ;
 <command_4> = лежать ;
 <command_5> = проснись ;
 <command_6> = усни ;
+<command_7> = что видишь ;
