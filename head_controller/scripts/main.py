@@ -114,6 +114,7 @@ class HeadController():
         self.__sound_direction = 270
         self._battery_voltage = 4.2
         self._battery_current = 1
+        self._last_paw = 'left'
         time.sleep(15)
         self.run()
 
@@ -256,6 +257,7 @@ class HeadController():
                                             srv_mors_stride_height=self._srv_mors_stride_height,
                                             sound_direction=self.__sound_direction)
                 resp = self.action_std_paw.start_action("left")
+                self._last_paw = 'left'
 
             elif cmd=="дай правую лапу":
                 importlib.reload(std_paw)
@@ -274,6 +276,7 @@ class HeadController():
                                             srv_mors_stride_height=self._srv_mors_stride_height,
                                             sound_direction=self.__sound_direction)
                 resp = self.action_std_paw.start_action("right")
+                self._last_paw = 'right'
 
             elif cmd=="дай другую лапу":
                 importlib.reload(std_paw)
@@ -291,8 +294,13 @@ class HeadController():
                                             srv_mors_joints_kd=self._srv_mors_joints_kd,
                                             srv_mors_stride_height=self._srv_mors_stride_height,
                                             sound_direction=self.__sound_direction)
-                resp = self.action_std_paw.start_action("switch")
-            elif cmd=="усни":
+                if self._last_paw == 'left':
+                    resp = self.action_std_paw.start_action("right")
+                    self._last_paw = 'right'
+                elif self._last_paw == 'right':
+                    resp = self.action_std_paw.start_action("left")
+                    self._last_paw = 'left'
+            elif cmd=="отключись":
                 importlib.reload(std_sleep)
                 self.action_std_sleep = std_sleep.STD_SLEEP(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
@@ -309,7 +317,7 @@ class HeadController():
                                             srv_mors_stride_height=self._srv_mors_stride_height,
                                             sound_direction=self.__sound_direction)
                 resp = self.action_std_sleep.start_action()
-            elif cmd=="проснись":
+            elif cmd=="вставай":
                 importlib.reload(std_wakeup)
                 self.action_std_wakeup = std_wakeup.STD_WAKEUP(srv_display_player=self._service_display_player,
                                             srv_set_neck=self._service_set_neck,
