@@ -67,7 +67,8 @@ class HeadController():
         self._service_set_neck = rospy.ServiceProxy('NeckSetAngle', NeckSetAngle)
         self._service_set_ears = rospy.ServiceProxy('EarsSetAngle', EarsSetAngle)
         self._service_play_sound = rospy.ServiceProxy('playSound', playSound)
-    
+        
+        self._service_display_player(self._script_path+"/loadingVideo.mp4")
 
         if self._useMors:
             rospy.wait_for_service('SetMorsMode')
