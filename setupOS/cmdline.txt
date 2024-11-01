@@ -1,0 +1,1 @@
+elevator=deadline net.ifnames=0 console=serial0,115200 dwc_otg.lpm_enable=0 root=LABEL=writable rootfstype=ext4 rootwait fixrtc quiet splash cfg80211.ieee80211_regdom=US video=HDMI-A-1:1080x1080M-24@60 fbcon=rotate:3 fbcon=map:10 plymouth.ignore-serial-consoles

@@ -1,0 +1,6 @@
+# Place "config.txt" changes (dtparam, dtoverlay, disable_overscan, etc.) in
+# this file. Please refer to the README file for a description of the various
+# configuration files on the boot partition.
+framebuffer_height=1080
+framebuffer_width=1080
+dtoverlay=vc4-kms-v3d

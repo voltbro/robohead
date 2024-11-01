@@ -1,0 +1,4 @@
+
+fbtft
+fbtft_device name=hy28a verbose=0
+fb_ili9320

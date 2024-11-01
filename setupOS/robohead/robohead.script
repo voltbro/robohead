@@ -1,0 +1,35 @@
+// Получаем настройки экрана
+screen.w = Window.GetWidth();
+screen.h = Window.GetHeight();
+screen.half.w = screen.w / 2;
+screen.half.h = screen.h / 2;
+
+// Подгружаем изображения для анимации
+images_count = 275;
+
+for (i = 0; i < images_count; ++i) {
+    images[i] = Image("animation-" + (i + 1) + ".png");
+}
+
+// Plymouth рисует изображения, обёрнутые в объект Sprite
+// Готовим его и помещаем в центр экрана
+cur_sprite = Sprite();
+cur_sprite.SetX(screen.half.w - images[0].GetWidth() / 2);
+cur_sprite.SetY(screen.half.h - images[0].GetHeight() / 2);
+
+// Timestamp процесса отрисовки анимации
+ts = 0;
+
+// Объявляем функцию для обновления экрана
+// Она будет вызываться до 50 раз в секунду
+fun update() {
+    // Оборачиваем подгруженные изображения в Sprite
+    // Цикл реализуем с помощью операции mod
+    // Обратите внимания на костыль для замедления анимации (ts / 1.6)
+    // Он нужен для того, чтобы воспроизводилось не так быстро (значение подобрано эмпирически)
+    cur_sprite.SetImage(images[Math.Int(ts / 1.6) % images_count]);
+
+    ts++;
+}
+
+Plymouth.SetRefreshFunction(update);

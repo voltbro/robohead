@@ -1,0 +1,11 @@
+[Unit]
+Description=Robohead service.
+After=multi-user.target alsa-restore.service avahi-daemon.service cloud-init.service cloud-init.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/user/start.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
