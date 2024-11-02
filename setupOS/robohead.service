@@ -4,7 +4,7 @@ After=multi-user.target alsa-restore.service avahi-daemon.service cloud-init.ser
 
 [Service]
 Type=simple
-ExecStart=/bin/bash /home/user/start.sh
+ExecStart=/bin/bash /home/pi/start.sh
 Restart=always
 
 [Install]
