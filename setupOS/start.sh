@@ -1,11 +1,11 @@
 #!/bin/bash
 
 source /opt/ros/noetic/setup.bash
-source /home/user/robohead_ws/devel/setup.bash
+source /home/pi/robohead_ws/devel/setup.bash
 
 export PYTHONPATH=$PYTHONPATH:$ROS_ROOT/core/roslib/src
 export PYTHONPATH=$PYTHONPATH:/usr/bin/python3
-export PYTHONPATH=$PYTHONPATH:/home/user/.local/lib/python3.8/site-packages
+export PYTHONPATH=$PYTHONPATH:/home/pi/.local/lib/python3.8/site-packages
 
 pactl set-default-sink 'alsa_output.usb-SEEED_ReSpeaker_4_Mic_Array__UAC1.0_-00.analog-stereo'
 pulseaudio -k
