@@ -60,10 +60,10 @@ class SpeakersController():
     def is_playing_sound(self)->bool:
         return self.__vlc_player.is_playing()
     
-    def set_volume(self, volume:int=50)->None:
+    def set_volume(self, volume:int)->None:
         if (0<=volume<=100):
             self.volume = volume
-            # self.__vlc_player.audio_set_volume(volume)
+            self.__vlc_player.audio_set_volume(volume)
 
 if __name__ == "__main__":
     SpeakersController()

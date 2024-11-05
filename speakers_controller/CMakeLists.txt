@@ -164,6 +164,11 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/main.py
+  examples/isPlaying.py
+  examples/playSound.py
+  examples/setVolume.py
+  examples/stopPlaying.py
+  
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
