@@ -63,7 +63,7 @@ if __name__ == '__main__':
     request.data.angular.z = 0
     request.duration = 1
     srv_goal_vel(request)
-    time.sleep(3) # Ждем время разгона + время шагания
+    rospy.sleep(3) # Ждем время разгона + время шагания
 
     # Плавно останавливаемся
     request.data.linear.x = 0
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     request.data.angular.z = 0
     request.duration = 1
     srv_goal_vel(request)
-    time.sleep(1) # Ждем время торможения
+    rospy.sleep(1) # Ждем время торможения
 
     # Идем назад со скоростью 0.4 м/сек: разгоняемся до этой скорости за 1 сек, шагаем 2 сек
     request.data.linear.x = -0.4
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     request.data.angular.z = 0
     request.duration = 1
     srv_goal_vel(request)
-    time.sleep(3) # Ждем время разгона + время шагания
+    rospy.sleep(3) # Ждем время разгона + время шагания
 
     # Плавно останавливаемся
     request.data.linear.x = 0
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     request.data.angular.z = 0
     request.duration = 1
     srv_goal_vel(request)
-    time.sleep(1) # Ждем время торможения
+    rospy.sleep(1) # Ждем время торможения
 
     # Идем влево со скоростью 0.2 м/сек: разгоняемся до этой скорости за 1.5 сек, шагаем 3 сек
     request.data.linear.x = 0
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     request.data.angular.z = 0
     request.duration = 1.5
     srv_goal_vel(request)
-    time.sleep(4.5) # Ждем время разгона + время шагания
+    rospy.sleep(4.5) # Ждем время разгона + время шагания
 
     # Плавно останавливаемся
     request.data.linear.x = 0
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     request.data.angular.z = 0
     request.duration = 1
     srv_goal_vel(request)
-    time.sleep(1) # Ждем время торможения
+    rospy.sleep(1) # Ждем время торможения
     
     # Поворачиваем налево с радиусом поворота 0.7 метра: разгон 1.5 с, шагание 3 с
     request.data.linear.x = 0.3
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     request.data.angular.z = 0.3
     request.duration = 1.5
     srv_goal_vel(request)
-    time.sleep(4.5) # Ждем время разгона + время шагания
+    rospy.sleep(4.5) # Ждем время разгона + время шагания
 
     # Плавно останавливаемся
     request.data.linear.x = 0
@@ -119,6 +119,6 @@ if __name__ == '__main__':
     request.data.angular.z = 0
     request.duration = 1
     srv_goal_vel(request)
-    time.sleep(1) # Ждем время торможения
+    rospy.sleep(1) # Ждем время торможения
 
     set_action_client(2)

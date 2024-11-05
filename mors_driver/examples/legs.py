@@ -80,7 +80,7 @@ if __name__ == '__main__':
         msg.data = legs
         msg.duration = 2
         srv_goal_ef_pos(msg)
-        time.sleep(2.5)
+        rospy.sleep(2.5)
 
         k = k*(-1)
 

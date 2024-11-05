@@ -26,12 +26,10 @@ if __name__ == '__main__':
     rospy.loginfo("Demo Actions: Start")
     # Встать
     set_action_client(1)
-    # Дай лапу
+    # Дай правую лапу
     set_action_client(3)
-    # При повторном вызове робот дает другую лапу
-    set_action_client(3)
-    # Кувырок
-    set_action_client(4)
+    # Дай левую лапу
+    set_action_client(7)
     # Помахай лапой
     set_action_client(5)
     # Сидеть

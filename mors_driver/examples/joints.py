@@ -26,16 +26,6 @@ def set_mode_client(mode:int) -> QuadrupedCmdResponse:
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
-# call robot_action service
-def set_action_client(action:int) -> QuadrupedCmdResponse:
-    rospy.wait_for_service('SetMorsAction')
-    try:
-        set_action = rospy.ServiceProxy('SetMorsAction', QuadrupedCmd)
-        resp = set_action(action)
-        return resp.result
-    except rospy.ServiceException as e:
-        print("Service call failed: %s"%e)
-
 
 # call joints_kpkd service
 def set_joints_kp(kp):
@@ -68,7 +58,6 @@ if __name__ == '__main__':
     cmd_joint_msg.accelerations = [0]*12
  
     rospy.loginfo("Demo Joints: Start")
-    set_action_client(2) # ОБЯЗАТЕЛЬНО ЛОЖИМСЯ ПЕРЕД ЗАПУСКОМ РЕЖИМА УПРАВЛЕНИЯ ДВИГАТЕЛЯМИ
     # обнуляем коэффициенты обратной связи для моторов
     set_joints_kp([0.0]*12)
     set_joints_kd([0.0]*12)

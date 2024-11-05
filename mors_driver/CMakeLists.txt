@@ -168,7 +168,11 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/main.py
-  examples/example_mors_driver_joints.py
+  examples/actions.py
+  examples/body.py
+  examples/joints.py
+  examples/legs.py
+  examples/walk.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
