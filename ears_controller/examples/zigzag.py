@@ -36,9 +36,14 @@ time.sleep(1)
 
 # Попеременно дергаем ушами
 k = 1
-while not rospy.is_shutdown():
+for _ in range(5):
     request.EarLeft = 90*k
     request.EarRight = 90*(-k)
     service_ears(request)
     time.sleep(1)
     k=k*(-1)
+
+
+request.EarLeft = 0
+request.EarRight = 0
+service_ears(request)
