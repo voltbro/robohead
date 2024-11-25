@@ -1,0 +1,8 @@
+int8 left_ear_angle
+int8 right_ear_angle
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := left ear angle value over constraints (see config file)
+# -2    := right ear angle value over constraints (see config file)
