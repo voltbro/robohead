@@ -1,0 +1,11 @@
+int8 vertical_angle
+int8 horizontal_angle
+float64 duration
+int8 is_blocking
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := vertical_angle value over constraints (see config file)
+# -2    := horizontal_angle value over constraints (see config file)
+# -3    := negative duration. Duration must be >=0
