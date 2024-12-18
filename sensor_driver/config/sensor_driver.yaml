@@ -1,0 +1,5 @@
+topic_name: "~bat"
+publish_rate: 5
+
+i2c_address: 0x43
+i2c_bus: 1

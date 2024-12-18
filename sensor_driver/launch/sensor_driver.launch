@@ -1,6 +1,7 @@
 <launch>
+	<rosparam command="load" file="$(find sensor_driver)/config/sensor_driver.yaml" ns="sensor_driver"/>
 
-	<node name="sensor_driver_node" pkg="sensor_driver" type="main.py" output="screen" >
+	<node name="sensor_driver" pkg="sensor_driver" type="main.py" output="screen">
 	</node>
 
 </launch>

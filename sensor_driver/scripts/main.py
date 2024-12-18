@@ -1,31 +1,36 @@
-import os
-import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+#!/usr/bin/env python
 
-import INA219
+from dependencies.INA219 import INA219
 
 import rospy
 from sensor_msgs.msg import BatteryState
 
+class SensorDriver():
+    def __init__(self):
+        rospy.init_node('sensor_driver')
 
+        topic_name = rospy.get_param("~topic_name", "~bat")
+        publish_rate = rospy.get_param("~publish_rate", 5)
 
-ina219 = INA219.INA219(addr=0x43)
+        i2c_address = rospy.get_param("~i2c_address", 0x43)
+        i2c_bus = rospy.get_param("~i2c_bus", 1)
 
-def talker():
-    pub = rospy.Publisher('head/bat', BatteryState, queue_size=10)
-    rospy.init_node('sensor_driver', anonymous=True)
-    rate = rospy.Rate(10) # 10hz
+        ina219 = INA219(i2c_bus=i2c_bus, addr=i2c_address)
 
-    print("Sensor driver inited!")
-    while not rospy.is_shutdown():
+        pub = rospy.Publisher(topic_name, BatteryState, queue_size=10)
+        rate = rospy.Rate(publish_rate)
+
+        rospy.loginfo("sensor_driver INITED")
+
         msg = BatteryState()
-        msg.voltage = ina219.getBusVoltage_V()
-        msg.current = ina219.getCurrent_mA()/1000
-        pub.publish(msg)
-        rate.sleep()
+        while not rospy.is_shutdown():
+            msg.voltage = ina219.getBusVoltage_V()
+            msg.current = ina219.getCurrent_mA()/1000
+            pub.publish(msg)
+            rate.sleep()
 
 if __name__ == '__main__':
     try:
-        talker()
+        obj = SensorDriver()
     except rospy.ROSInterruptException:
         pass
