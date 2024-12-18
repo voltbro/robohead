@@ -25,6 +25,7 @@ class EarsDriverPy():
 
         rospy.Service(srv_name, EarsSetAngle, self._requester)
 
+        rospy.loginfo("ears_driver_py INITED")
         rospy.spin()
         
     def _requester(self, request:EarsSetAngle):
