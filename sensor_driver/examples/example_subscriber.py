@@ -10,7 +10,7 @@ def callback(msg:BatteryState):
 def listener():
     rospy.init_node('example_subscriber')
 
-    rospy.Subscriber("chatter", BatteryState, callback)
+    rospy.Subscriber("sensor_driver/bat", BatteryState, callback)
 
     rospy.spin()
 
