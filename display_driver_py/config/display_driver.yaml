@@ -1,0 +1,10 @@
+height: 1080
+width: 1080
+color_channels: 3
+framerate: 60
+fb_name: "/dev/fb0"
+
+blank_name: "__BLANK__"
+
+service_PlayMedia_name: "~PlayMedia"
+topic_PlayMedia_name: "~PlayMedia"

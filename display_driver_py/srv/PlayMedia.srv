@@ -1,0 +1,14 @@
+string path_to_media
+
+# Блокируется ли программа во время вызова сервиса
+int8 is_blocking
+
+# Зацикливать воспроизведение? Имеет смысл только для видео. Если is_blocking=1 и is_cycled=1,
+# то блокирование вызова будет только во время первого воспроизведения видео
+int8 is_cycled 
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := File is not exists
+# other errors will print on display
