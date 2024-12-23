@@ -163,6 +163,9 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/main.py
+  examples/example_file.py
+  examples/example_stream.py
+  examples/example_touch.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

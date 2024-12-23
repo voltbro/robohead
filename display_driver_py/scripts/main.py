@@ -203,7 +203,6 @@ class DisplayController():
             for event in self._touch.read():
                 if event.type == evdev.ecodes.EV_ABS:
                     if event.code == 0:
-                        # y = self._touchscreen_resolution_h-event.value
                         x = event.value
                     elif event.code == 1:
                         y = event.value
