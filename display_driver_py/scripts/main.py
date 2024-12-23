@@ -9,9 +9,12 @@ import multiprocessing
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
+from ctypes import c_char
+import signal
+
 class DisplayController():
+
     def __init__(self) -> None:
-        
         rospy.init_node("display_driver_py")
 
         self._height = rospy.get_param("~height", 1080)
@@ -26,19 +29,19 @@ class DisplayController():
         service_PlayMedia_name = rospy.get_param("~service_PlayMedia_name", "~PlayMedia")
         topic_PlayMedia_name = rospy.get_param("~topic_PlayMedia_name", "~PlayMedia")
 
-
-        manager = multiprocessing.Manager()
         self._semaphore = multiprocessing.Semaphore(1)
-        self._showing_file = manager.Value('showing_file', self._blank_name)
-        self._is_played = manager.Value('is_played', 0)
-        self._is_cycled = manager.Value('is_cycled', 0)
+        self._showing_file = multiprocessing.Array(c_char, 4096)
+        self._showing_file.value = self._blank_name.encode()
+        self._is_played = multiprocessing.Value('i', 0)
+        self._is_cycled = multiprocessing.Value('i', 0)
         
         self._fb = np.memmap(self._fb_name, dtype='uint8', mode='w+', shape=(self._height, self._width, self._color_channels))
         
         self._cvBridge = CvBridge()
 
-        play = multiprocessing.Process(target=self._player, args=(), daemon=True)
-        play.start()
+        self._proccess_player = multiprocessing.Process(target=self._player, args=(), daemon=True)
+        self._proccess_player.start()
+        signal.signal(signal.SIGINT, self.stop)
 
         PlayMedia_subscriber = rospy.Subscriber(topic_PlayMedia_name, Image, callback=self._img_sub)
         PlayMedia_service = rospy.Service(service_PlayMedia_name, PlayMedia, self._requester)
@@ -52,19 +55,12 @@ class DisplayController():
         
     def _requester(self, request:PlayMediaRequest):
         response = PlayMediaResponse()
-        if request.path_to_media == self._blank_name:
-            self._semaphore.acquire()
-            self._is_played.value = 0
-            self._is_cycled.value = 0
-            self._showing_file.value = request.path_to_media
-            self._semaphore.release()
-            return 0
 
-        elif os.path.exists(request.path_to_media):
+        if (request.path_to_media == self._blank_name) or os.path.exists(request.path_to_media):
             self._semaphore.acquire()
             self._is_played.value = 0
             self._is_cycled.value = request.is_cycled
-            self._showing_file.value = request.path_to_media
+            self._showing_file.value = request.path_to_media.encode()
             self._semaphore.release()
 
             while (request.is_blocking!=0) and (self._is_played.value==0):
@@ -103,14 +99,12 @@ class DisplayController():
             bottomLeftCornerOfText = (bottomLeftCornerOfText[0], bottomLeftCornerOfText[1]+40)
 
         self._fb[:]+=cv2.rotate(img, self._rotate)
-        # self._fb[:] = img
-        
 
     def _player(self) -> None:
         prev_cap = ''
         while True:
             self._semaphore.acquire()
-            current_file = self._showing_file.value
+            current_file = self._showing_file.value.decode()
             is_played = self._is_played.value
             is_cycled = self._is_cycled.value
             self._semaphore.release()
@@ -153,19 +147,21 @@ class DisplayController():
                     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 else:
                     self._fb[:] = cv2.rotate(src, self._rotate)
-                    # cv2.waitKey(20)
                     fps.sleep()
-
-                    
+ 
             else:
                 if is_played == 0:
                     self.drawError("Unknown extension of file")
                     self._semaphore.acquire()
                     self._is_played.value = 1
-                    self._semaphore.release()
 
 
-                        
+    def stop(self, arg1=None, arg2=None):
+        self._proccess_player.kill()
+        self._proccess_player.join()
+
+        self._fb[:]=0
+        exit(0)
 
 
 if __name__ == "__main__":
