@@ -3,6 +3,7 @@ width: 1080
 color_channels: 3
 framerate: 60
 fb_name: "/dev/fb0"
+rotate: 2 # 0, 1, 2, 3
 
 blank_name: "__BLANK__"
 

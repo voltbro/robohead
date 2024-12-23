@@ -19,6 +19,7 @@ class DisplayController():
         self._color_channels = rospy.get_param("~color_channels", 3)
         self._framerate = rospy.get_param("~framerate", 60)
         self._fb_name = rospy.get_param("~fb_name", "/dev/fb0")
+        self._rotate = rospy.get_param("~rotate", 0)
 
         self._blank_name = rospy.get_param("~blank_name", "__BLANK__")
         
@@ -27,6 +28,7 @@ class DisplayController():
 
 
         manager = multiprocessing.Manager()
+        self._semaphore = multiprocessing.Semaphore(1)
         self._showing_file = manager.Value('showing_file', self._blank_name)
         self._is_played = manager.Value('is_played', 0)
         self._is_cycled = manager.Value('is_cycled', 0)
@@ -46,14 +48,24 @@ class DisplayController():
 
     def _img_sub(self, image_msg:Image):
         cv_image = self._cvBridge.imgmsg_to_cv2(image_msg, "bgr8")
-        self._fb[:]=cv2.rotate(cv_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        self._fb[:]=cv2.rotate(cv_image, self._rotate)
         
     def _requester(self, request:PlayMediaRequest):
         response = PlayMediaResponse()
-        if os.path.exists(request.path_to_media):
+        if request.path_to_media == self._blank_name:
+            self._semaphore.acquire()
+            self._is_played.value = 0
+            self._is_cycled.value = 0
+            self._showing_file.value = request.path_to_media
+            self._semaphore.release()
+            return 0
+
+        elif os.path.exists(request.path_to_media):
+            self._semaphore.acquire()
             self._is_played.value = 0
             self._is_cycled.value = request.is_cycled
             self._showing_file.value = request.path_to_media
+            self._semaphore.release()
 
             while (request.is_blocking!=0) and (self._is_played.value==0):
                 rospy.sleep(1/self._framerate)
@@ -65,66 +77,69 @@ class DisplayController():
             return response
     
     def drawError(self, error:str='') -> None:
-        print(f"ERROR: {error}")
-        self.response.value = 1
-        try:
-            self._fb[:] = [255, 0, 0]
-            h, w, c = self.fb_hwc.value
-            img = np.zeros((w, h, c), np.uint8)
+        rospy.logerr(error)
 
-            font                   = cv2.FONT_HERSHEY_SIMPLEX
-            bottomLeftCornerOfText = (10,w//2)
-            fontScale              = 1
-            fontColor              = (0,255,0)
-            thickness              = 1
-            lineType               = 2
+        self._fb[:] = [255, 0, 0]
+        h, w, c = self._height, self._width, self._color_channels
+        img = np.zeros((w, h, c), np.uint8)
 
-            symbs_per_line = h//20
-            for i in range(len(error)//symbs_per_line+1):
-                s = error[i*symbs_per_line:i*symbs_per_line+symbs_per_line]
-                # print(s, bottomLeftCornerOfText)
-                cv2.putText(img,s, 
-                tuple(bottomLeftCornerOfText), 
-                font, 
-                fontScale,
-                fontColor,
-                thickness,
-                lineType)
-                bottomLeftCornerOfText = (bottomLeftCornerOfText[0], bottomLeftCornerOfText[1]+40)
+        font                   = cv2.FONT_HERSHEY_SIMPLEX
+        bottomLeftCornerOfText = (10,w//2)
+        fontScale              = 1
+        fontColor              = (0,255,0)
+        thickness              = 1
+        lineType               = 2
 
-            self.fb[:]=cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            # self.fb[:] = img
-        except Exception as e:
-            print(e)
+        symbs_per_line = h//20
+        for i in range(len(error)//symbs_per_line+1):
+            s = error[i*symbs_per_line:i*symbs_per_line+symbs_per_line]
+            cv2.putText(img,s, 
+            tuple(bottomLeftCornerOfText), 
+            font, 
+            fontScale,
+            fontColor,
+            thickness,
+            lineType)
+            bottomLeftCornerOfText = (bottomLeftCornerOfText[0], bottomLeftCornerOfText[1]+40)
+
+        self._fb[:]+=cv2.rotate(img, self._rotate)
+        # self._fb[:] = img
         
 
     def _player(self) -> None:
         prev_cap = ''
         while True:
+            self._semaphore.acquire()
             current_file = self._showing_file.value
+            is_played = self._is_played.value
+            is_cycled = self._is_cycled.value
+            self._semaphore.release()
             
             if current_file == self._blank_name:
-                if self._is_played.value == 0:
+                if is_played == 0:
                     self._fb[:] = 0
+                    self._semaphore.acquire()
                     self._is_played.value = 1
-
+                    self._semaphore.release()
+                continue
             ext = current_file.split('.')[-1]
 
             if ext in ['jpg', 'png']:  
-                if self._is_played.value == 0:
+                if is_played == 0:
                     img = cv2.imread(current_file)
                     try:
-                        self._fb[:self._height, :self._width, :] = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                        self._fb[:self._height, :self._width, :] = cv2.rotate(img, self._rotate)
                     except Exception as e:
                         self.drawError(f"Couldn`t show image.\nDetails: {e}")
 
+                    self._semaphore.acquire()
                     self._is_played.value = 1
-
+                    self._semaphore.release()
 
             elif ext in ['mp4', 'mov', 'avi']:
-                if (self._is_cycled.value == 0) and (self._is_played.value == 1):
+                if (is_cycled == 0) and (is_played == 1):
                     continue
-                
+
                 if  prev_cap!=current_file:
                     cap = cv2.VideoCapture(current_file)
                     fps = rospy.Rate(cap.get(cv2.CAP_PROP_FPS))
@@ -132,18 +147,24 @@ class DisplayController():
 
                 ret, src = cap.read()
                 if not ret:
+                    self._semaphore.acquire()
                     self._is_played.value = 1
+                    self._semaphore.release()
                     cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 else:
-                    self._fb[:] = cv2.rotate(src, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                    self._fb[:] = cv2.rotate(src, self._rotate)
                     # cv2.waitKey(20)
                     fps.sleep()
 
                     
             else:
-                if self._is_played.value == 0:
+                if is_played == 0:
                     self.drawError("Unknown extension of file")
+                    self._semaphore.acquire()
                     self._is_played.value = 1
+                    self._semaphore.release()
+
+
                         
 
 
