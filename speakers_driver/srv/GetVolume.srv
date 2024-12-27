@@ -1,0 +1,4 @@
+---
+int8 value 
+# Return values:
+#  0..100   := current volume

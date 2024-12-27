@@ -1,0 +1,13 @@
+string path_to_file
+
+# Блокируется ли программа во время вызова сервиса
+int8 is_blocking
+
+# Зацикливать воспроизведение? Если is_blocking=1 и is_cycled=1,
+# то вызов будет заблокирован навсегда
+int8 is_cycled 
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := File/stream is not exists

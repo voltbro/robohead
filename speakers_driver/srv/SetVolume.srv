@@ -1,0 +1,7 @@
+int8 volume 
+# 0...100%
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := invalid volume
