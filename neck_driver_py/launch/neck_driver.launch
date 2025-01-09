@@ -1,7 +1,0 @@
-<launch>
-	<rosparam command="load" file="$(find neck_driver_py)/config/neck_driver.yaml" ns="neck_driver_py"/>
-
-	<node name="neck_driver_py" pkg="neck_driver_py" type="main.py" output="screen">
-	</node>
-
-</launch>

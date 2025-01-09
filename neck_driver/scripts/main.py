@@ -1,14 +1,14 @@
 from adafruit_servokit import ServoKit
 import rospy
-from neck_driver_py.srv import NeckSetAngle, NeckSetAngleResponse, NeckSetAngleRequest
+from neck_driver.srv import NeckSetAngle, NeckSetAngleResponse, NeckSetAngleRequest
 import multiprocessing
 
-class NeckDriverPy():
+class NeckDriver():
     def __init__(self)->None:
         
         self._kit = ServoKit(channels=16)
 
-        rospy.init_node("neck_driver_py")
+        rospy.init_node("neck_driver")
 
         srv_name = rospy.get_param("~service_name", "~NeckSetAngle")
         std_vertical_angle = rospy.get_param("~std_vertical_angle", 0)
@@ -35,7 +35,7 @@ class NeckDriverPy():
         process.start()
 
         rospy.Service(srv_name, NeckSetAngle, self._requester)
-        rospy.loginfo("neck_driver_py INITED")
+        rospy.loginfo("neck_driver INITED")
         rospy.spin()
 
     def _trajectory_planner(self):
@@ -107,4 +107,4 @@ class NeckDriverPy():
         self._current_angles.value = (self.__vertical, self.__horizontal)
 
 if __name__ == "__main__":
-    obj = NeckDriverPy()
+    obj = NeckDriver()

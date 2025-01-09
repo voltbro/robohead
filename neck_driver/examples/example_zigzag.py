@@ -1,22 +1,22 @@
 # ========================================================= #
 #                                                           #
-#   Пример работы с пакетом neck_driver_py на ЯП python     #
+#   Пример работы с пакетом neck_driver на ЯП python        #
 #                                                           #
 # ========================================================= #
 
 import rospy    # Библиотека для работы с ROS
 
 # Подключаем типы сообщений сервиса NeckSetAngle:
-from neck_driver_py.srv import NeckSetAngle, NeckSetAngleRequest
+from neck_driver.srv import NeckSetAngle, NeckSetAngleRequest
 
 # Инициализируем ROS-ноду:
-rospy.init_node("ears_driver_py_example_zigzag")
+rospy.init_node("ears_driver_example_zigzag")
 
 # Дожидаемся инициализации сервиса
-rospy.wait_for_service("/neck_driver_py/NeckSetAngle")
+rospy.wait_for_service("/neck_driver/NeckSetAngle")
 
 # Создаем объект сервиса для работы с шеей:
-service_neck = rospy.ServiceProxy('/neck_driver_py/NeckSetAngle', NeckSetAngle)
+service_neck = rospy.ServiceProxy('/neck_driver/NeckSetAngle', NeckSetAngle)
 
 # Создаем объект запроса:
 request = NeckSetAngleRequest()
