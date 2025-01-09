@@ -1,0 +1,7 @@
+<launch>
+	<rosparam command="load" file="$(find display_driver)/config/display_driver.yaml" ns="display_driver"/>
+
+	<node name="display_driver" pkg="display_driver" type="main.py" output="screen">
+	</node>
+
+</launch>

@@ -1,7 +1,7 @@
 # ========================================================= #
 #                                                           #
-#   Пример работы с пакетом display_driver_py               #
-#   Воспроизведение потокового медиа на ЯП python            #
+#   Пример работы с пакетом display_driver                  #
+#   Воспроизведение потокового медиа на ЯП python           #
 #   (для работы примера дополнительно запустите пакет:      #
 #   cv_camera, команда: rosrun cv_camera cv_camera_node     #       
 #                                                           #
@@ -13,7 +13,7 @@ import cv2   # Библиотека OpenCV
 from cv_bridge import CvBridge # Конвертация изображения ROS<->OpenCV
 
 # Подключаем тип сообщения для сервиса PlayMedia
-from display_driver_py.srv import PlayMedia, PlayMediaRequest
+from display_driver.srv import PlayMedia, PlayMediaRequest
 
 # Подключаем тип сообщения Image
 from sensor_msgs.msg import Image
@@ -27,16 +27,16 @@ def img_proc(image_msg:Image):
 
 
 rospy.init_node('example_stream_node') # Инициализируем ROS-ноду
-rospy.wait_for_service("/display_driver_py/PlayMedia") # Дожидаемся инициализации сервиса
+rospy.wait_for_service("/display_driver/PlayMedia") # Дожидаемся инициализации сервиса
 
 image_sub = rospy.Subscriber("/cv_camera/image_raw", Image, callback=img_proc)      # Подписчик на топик потока с камеры
-image_pub = rospy.Publisher("/display_driver_py/PlayMedia", Image, queue_size=1)    # Паблишер для отправки изображений в топик PlayMedia
+image_pub = rospy.Publisher("/display_driver/PlayMedia", Image, queue_size=1)    # Паблишер для отправки изображений в топик PlayMedia
 
 # Создаем объект сервиса работы с дисплеем
-service_PlayMedia = rospy.ServiceProxy('/display_driver_py/PlayMedia', PlayMedia)
+service_PlayMedia = rospy.ServiceProxy('/display_driver/PlayMedia', PlayMedia)
 
 request = PlayMediaRequest()
-request.path_to_media = "__BLANK__"
+request.path_to_file = "__BLANK__"
 request.is_blocking = 1
 request.is_cycled = 0
 service_PlayMedia(request) # Останавливаем воспроизведение медиа на экране

@@ -1,6 +1,6 @@
 # ========================================================= #
 #                                                           #
-#   Пример работы с пакетом display_driver_py               #
+#   Пример работы с пакетом display_driver                  #
 #   Использование тачскрина на ЯП python                    #
 #                                                           #
 # ========================================================= #
@@ -12,7 +12,7 @@ import numpy as np # Библиотека numpy
 from cv_bridge import CvBridge # Конвертация изображения ROS<->OpenCV
 
 # Подключаем тип сообщения для сервиса PlayMedia
-from display_driver_py.srv import PlayMedia, PlayMediaRequest
+from display_driver.srv import PlayMedia, PlayMediaRequest
 
 # Подключаем тип сообщения Image
 from sensor_msgs.msg import Image
@@ -32,16 +32,16 @@ def draw_circle(msg:Pose2D):
         image_pub.publish(cvBridge.cv2_to_imgmsg(cv_image, encoding="bgr8")) 
 
 rospy.init_node('example_touch_node') # Инициализируем ROS-ноду
-rospy.wait_for_service("/display_driver_py/PlayMedia") # Дожидаемся инициализации сервиса
+rospy.wait_for_service("/display_driver/PlayMedia") # Дожидаемся инициализации сервиса
 
-image_pub = rospy.Publisher("/display_driver_py/PlayMedia", Image, queue_size=1) # Паблишер для отправки изображений в топик PlayMedia
-touch_sub = rospy.Subscriber("/display_driver_py/touchscreen", Pose2D, callback=draw_circle)      # Подписчик на топик с координатами тачскрина
+image_pub = rospy.Publisher("/display_driver/PlayMedia", Image, queue_size=1) # Паблишер для отправки изображений в топик PlayMedia
+touch_sub = rospy.Subscriber("/display_driver/touchscreen", Pose2D, callback=draw_circle)      # Подписчик на топик с координатами тачскрина
 
 # Создаем объект сервиса работы с дисплеем
-service_PlayMedia = rospy.ServiceProxy('/display_driver_py/PlayMedia', PlayMedia)
+service_PlayMedia = rospy.ServiceProxy('/display_driver/PlayMedia', PlayMedia)
 
 request = PlayMediaRequest()
-request.path_to_media = "__BLANK__"
+request.path_to_file = "__BLANK__"
 request.is_blocking = 1
 request.is_cycled = 0
 service_PlayMedia(request) # Останавливаем воспроизведение медиа на экране

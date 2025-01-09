@@ -1,5 +1,5 @@
 import rospy
-from display_driver_py.srv import PlayMedia, PlayMediaRequest, PlayMediaResponse
+from display_driver.srv import PlayMedia, PlayMediaRequest, PlayMediaResponse
 from geometry_msgs.msg import Pose2D
 
 import os
@@ -17,10 +17,10 @@ import signal
 import evdev, select
 from math import sin, cos, radians
 
-class DisplayController():
+class DisplayDriver():
 
     def __init__(self) -> None:
-        rospy.init_node("display_driver_py")
+        rospy.init_node("display_driver")
 
         self._height = rospy.get_param("~screen_resolution_h", 1080)
         self._width = rospy.get_param("~screen_resolution_w", 1080)
@@ -71,7 +71,7 @@ class DisplayController():
             self._thread_touchscreen.start()
 
         signal.signal(signal.SIGINT, self.stop)
-        rospy.loginfo("display_driver_py INITED")
+        rospy.loginfo("display_driver INITED")
         rospy.spin()
 
     def _img_sub(self, image_msg:Image):
@@ -84,11 +84,11 @@ class DisplayController():
     def _requester(self, request:PlayMediaRequest):
         response = PlayMediaResponse()
 
-        if (request.path_to_media == self._blank_name) or os.path.exists(request.path_to_media):
+        if (request.path_to_file == self._blank_name) or os.path.exists(request.path_to_file):
             self._semaphore.acquire()
             self._is_played.value = 0
             self._is_cycled.value = request.is_cycled
-            self._showing_file.value = request.path_to_media.encode()
+            self._showing_file.value = request.path_to_file.encode()
             self._semaphore.release()
 
             while (request.is_blocking!=0) and (self._is_played.value==0):
@@ -235,9 +235,9 @@ class DisplayController():
 
         self._fb[:]=0
 
-        rospy.loginfo("display_driver_py SHUTDOWN")
+        rospy.loginfo("display_driver SHUTDOWN")
         exit(0)
 
 
 if __name__ == "__main__":
-    obj = DisplayController()
+    obj = DisplayDriver()
