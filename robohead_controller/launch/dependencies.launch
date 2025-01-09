@@ -1,0 +1,53 @@
+<launch>
+	<group ns="robohead_controller">
+
+		<rosparam command="load" file="$(find robohead_controller)/config/display_driver.yaml" ns="display_driver"/>
+		<node name="display_driver" pkg="display_driver" type="main.py" output="screen" >
+		</node>
+	
+		<rosparam command="load" file="$(find robohead_controller)/config/neck_driver.yaml" ns="neck_driver"/>
+		<node name="neck_driver" pkg="neck_driver" type="main.py" output="screen" >
+		</node>
+
+		<rosparam command="load" file="$(find robohead_controller)/config/sensor_driver.yaml" ns="sensor_driver"/>
+		<node name="sensor_driver" pkg="sensor_driver" type="main.py" output="screen" >
+		</node>
+
+		<rosparam command="load" file="$(find robohead_controller)/config/ears_driver.yaml" ns="ears_driver"/>
+		<node name="ears_driver" pkg="ears_driver" type="main.py" output="screen" >
+		</node>
+
+		<rosparam command="load" file="$(find robohead_controller)/config/speakers_driver.yaml" ns="speakers_driver"/>
+		<node name="speakers_driver" pkg="speakers_driver" type="main.py" output="screen" >
+		</node>
+
+		<node name="cv_camera" pkg="cv_camera" type="cv_camera_node" output="screen" >
+		</node>
+
+		<node name="respeaker_controller" pkg="respeaker_controller" type="main.py" output="screen" >
+		</node>
+
+		<!-- <arg name="hmm" default="$(find voice_recognizer)/model/zero_ru_cont_8k_v3/zero_ru.cd_cont_4000" />
+		<arg name="kws" default="$(find voice_recognizer)/config/kwslist.kwslist" />
+		<arg name="dict" default= "$(find voice_recognizer)/config/dictionary.dic" />
+		<arg name="gram" default="$(find voice_recognizer)/config/gram" />
+		<arg name="grammar" default="robot_cmd" />
+		<arg name="rule" default="commands" /> -->
+
+		<!-- <node name="asr_control" pkg="voice_recognizer" type="asr_control.py" output="screen" >
+			<param name="hmm" value="$(arg hmm)" />
+			<param name="dict" value="$(arg dict)" />
+			<param name="gram" value="$(arg gram)" />
+			<param name="grammar" value="$(arg grammar)" />
+			<param name="rule" value="$(arg rule)" />
+		</node> -->
+
+		<!-- <node name="kws_control" pkg="voice_recognizer" type="kws_control.py" output="screen" >
+			<param name="hmm" value="$(arg hmm)"/>
+			<param name="dict" value="$(arg dict)"/>
+			<param name="kws" value="$(arg kws)"/>
+		</node> -->
+
+	</group>
+
+</launch>

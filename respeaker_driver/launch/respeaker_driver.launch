@@ -1,0 +1,6 @@
+<launch>
+
+	<node name="respeaker_driver" pkg="respeaker_driver" type="main.py" output="screen" >
+	</node>
+
+</launch>

@@ -1,0 +1,10 @@
+<launch>
+
+	<include file="$(find robohead_controller)/launch/dependencies.launch">
+	</include>
+
+	<node name="robohead_controller" pkg="robohead_controller" type="main.py" output="screen" >
+	</node>
+
+
+</launch>
