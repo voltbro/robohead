@@ -1,0 +1,7 @@
+<launch>
+	<rosparam command="load" file="$(find ears_driver)/config/ears_driver.yaml" ns="ears_driver"/>
+
+	<node name="ears_driver" pkg="ears_driver" type="main.py" output="screen">
+	</node>
+
+</launch>

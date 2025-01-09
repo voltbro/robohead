@@ -1,13 +1,13 @@
 from adafruit_servokit import ServoKit
 import rospy
-from ears_driver_py.srv import EarsSetAngle, EarsSetAngleResponse
+from ears_driver.srv import EarsSetAngle, EarsSetAngleResponse
 
 class EarsDriverPy():
     def __init__(self)->None:
         
         self._kit = ServoKit(channels=16)
 
-        rospy.init_node("ears_driver_py")
+        rospy.init_node("ears_driver")
 
         srv_name = rospy.get_param("~service_name", "~EarsSetAngle")
         std_L_angle = rospy.get_param("~std_L_angle", 0)
@@ -25,7 +25,7 @@ class EarsDriverPy():
 
         rospy.Service(srv_name, EarsSetAngle, self._requester)
 
-        rospy.loginfo("ears_driver_py INITED")
+        rospy.loginfo("ears_driver INITED")
         rospy.spin()
         
     def _requester(self, request:EarsSetAngle):

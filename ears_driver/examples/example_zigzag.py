@@ -1,22 +1,22 @@
 # ========================================================= #
 #                                                           #
-#   Пример работы с пакетом ears_driver_py на ЯП python     #
+#   Пример работы с пакетом ears_driver на ЯП python        #
 #                                                           #
 # ========================================================= #
 
 import rospy    # Библиотека для работы с ROS
 
 # Подключаем типы сообщений сервиса EarsSetAngle:
-from ears_driver_py.srv import EarsSetAngle, EarsSetAngleRequest
+from ears_driver.srv import EarsSetAngle, EarsSetAngleRequest
 
 # Инициализируем ROS-ноду:
-rospy.init_node("ears_driver_py_example_zigzag") 
+rospy.init_node("ears_driver_example_zigzag") 
 
 # Дожидаемся инициализации сервиса
-rospy.wait_for_service("/ears_driver_py/EarsSetAngle")
+rospy.wait_for_service("/ears_driver/EarsSetAngle")
 
 # Создаем объект сервиса для работы с ушами:
-service_ears = rospy.ServiceProxy('/ears_driver_py/EarsSetAngle', EarsSetAngle)
+service_ears = rospy.ServiceProxy('/ears_driver/EarsSetAngle', EarsSetAngle)
 
 # Создаем объект запроса:
 request = EarsSetAngleRequest()
