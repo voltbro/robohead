@@ -1,4 +1,3 @@
-import usb.core
 import usb.util
 
 class PixelRing():
@@ -59,17 +58,16 @@ class PixelRing():
         # 0<=brightness<=31 - 32 уровня яркости
         self._write(0x20, [brightness])
     
-    def set_color_palette(self, a:int, b:int):
+    def set_color_palette(self, A_r:int, A_g:int, A_b:int,
+                          B_r:int, B_g:int, B_b:int):
         # Изменяет цветовую палитру для режима trace и listen
-        # a - цвет, указывающий направление, откуда идет звук
-        # b - цвет, заполняющий остальные светодиоды
+        # A - цвет, указывающий направление, откуда идет звук 
+        # B - цвет, заполняющий остальные светодиоды
         # Для режима spin цвет a задает общую заливку, b не используется
-        # цвет задаётся в виде 3-байтового числа, удобно задавать в 16-ричном формате, например
-        # 0xFFFFFF - белый
-        # 0xFF0000 - красный
-        # 0x00FF00 - зеленый
-        # 0x0000FF - синий
-        self._write(0x21, [(a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF, 0, (b >> 16) & 0xFF, (b >> 8) & 0xFF, b & 0xFF, 0])
+        # цвет задаётся в виде трёх 1-байтовых чисел
+        # цвет A: A_r, A_g, A_b
+        # цвет B: B_r, B_g, B_b
+        self._write(0x21, [A_r, A_g, A_b, 0, B_r, B_g, B_b, 0])
 
     def set_vad_led(self, state:int):
         # Управление VAD светодиодом (Voice Activity Detection)
@@ -88,47 +86,3 @@ class PixelRing():
         self.dev.ctrl_transfer(
             usb.util.CTRL_OUT | usb.util.CTRL_TYPE_VENDOR | usb.util.CTRL_RECIPIENT_DEVICE,
             0, cmd, 0x1C, data, self.timeout)
-
-    def __del__(self):
-        usb.util.dispose_resources(self.dev)
-
-
-# def find(vid=0x2886, pid=0x0018):
-#     dev = usb.core.find(idVendor=vid, idProduct=pid)
-#     if not dev:
-#         return
-
-#     # configuration = dev.get_active_configuration()
-
-#     # interface_number = None
-#     # for interface in configuration:
-#     #     interface_number = interface.bInterfaceNumber
-
-#     #     if dev.is_kernel_driver_active(interface_number):
-#     #         dev.detach_kernel_driver(interface_number)
-
-#     return PixelRing(dev)
-
-
-
-# if __name__ == '__main__':
-#     import time
-
-#     pixel_ring = find()
-
-#     while True:
-#         try:
-#             pixel_ring.wakeup(180)
-#             time.sleep(3)
-#             pixel_ring.listen()
-#             time.sleep(3)
-#             pixel_ring.think()
-#             time.sleep(3)
-#             pixel_ring.set_volume(8)
-#             time.sleep(3)
-#             pixel_ring.off()
-#             time.sleep(3)
-#         except KeyboardInterrupt:
-#             break
-
-#     pixel_ring.off()

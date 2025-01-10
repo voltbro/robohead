@@ -1,6 +1,5 @@
 <launch>
-
+	<rosparam command="load" file="$(find respeaker_driver)/config/respeaker_driver.yaml" ns="respeaker_driver"/>
 	<node name="respeaker_driver" pkg="respeaker_driver" type="main.py" output="screen" >
 	</node>
-
 </launch>

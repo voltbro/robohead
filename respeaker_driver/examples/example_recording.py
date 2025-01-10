@@ -29,7 +29,7 @@ def ignore_stderr(enable=True):
     
 class Recorder():
     def __init__(self, filename):
-        self.filename = filename
+        self.filename = "/home/pi/robohead_ws/src/robohead/respeaker_driver/examples/" +filename
         self.CHUNK = 1024
         self.RATE = 16000
         self.RECORD_SECONDS = 5
@@ -48,7 +48,7 @@ class Recorder():
         print(self.i, (self.RATE / self.CHUNK * self.RECORD_SECONDS))
         self.frames.append(msg.data)
         self.i += 1
-        if (self.i >= int(self.RATE / self.CHUNK * self.RECORD_SECONDS)) and self.flag==0:
+        if (self.i > int(self.RATE / self.CHUNK * self.RECORD_SECONDS)) and self.flag==0:
             self.flag = 1
             wf = wave.open(self.filename, 'wb')
             wf.setnchannels(1)
@@ -71,13 +71,13 @@ r5 = Recorder("rec5.wav") # channel 5 - звук, воспроизводимый
 r = Recorder("rec.wav") # channel main (0)
 rospy.init_node("example_recording")
 
-rospy.Subscriber("/head/audio/channel0", AudioData, r0.callback)
-rospy.Subscriber("/head/audio/channel1", AudioData, r1.callback)
-rospy.Subscriber("/head/audio/channel2", AudioData, r2.callback)
-rospy.Subscriber("/head/audio/channel3", AudioData, r3.callback)
-rospy.Subscriber("/head/audio/channel4", AudioData, r4.callback)
-rospy.Subscriber("/head/audio/channel5", AudioData, r5.callback)
-rospy.Subscriber("/head/audio", AudioData, r.callback)
+rospy.Subscriber("/respeaker_driver/audio/channel_0", AudioData, r0.callback)
+rospy.Subscriber("/respeaker_driver/audio/channel_1", AudioData, r1.callback)
+rospy.Subscriber("/respeaker_driver/audio/channel_2", AudioData, r2.callback)
+rospy.Subscriber("/respeaker_driver/audio/channel_3", AudioData, r3.callback)
+rospy.Subscriber("/respeaker_driver/audio/channel_4", AudioData, r4.callback)
+rospy.Subscriber("/respeaker_driver/audio/channel_5", AudioData, r5.callback)
+rospy.Subscriber("/respeaker_driver/audio/main", AudioData, r.callback)
 
 rospy.spin()
 
