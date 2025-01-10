@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from dependencies.INA219 import INA219
+from sensor_driver_dependencies.INA219 import INA219
 
 import rospy
 from sensor_msgs.msg import BatteryState

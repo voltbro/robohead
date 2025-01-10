@@ -1,78 +1,3 @@
-#!/usr/bin/env python
-
-# from dependencies.pixel_ring import PixelRing
-
-import usb.core
-import usb.util
-
-class PixelRing:
-    TIMEOUT = 8000
-
-    def __init__(self, dev):
-        self.dev = dev
-
-    def trace(self):
-        self.write(0)
-
-    def mono(self, color):
-        self.write(1, [(color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, 0])
-    
-    def set_color(self, rgb=None, r=0, g=0, b=0):
-        if rgb:
-            self.mono(rgb)
-        else:
-            self.write(1, [r, g, b, 0])
-
-    def off(self):
-        self.mono(0)
-
-    def listen(self, direction=None):
-        self.write(2)
-
-    wakeup = listen
-
-    def speak(self):
-        self.write(3)
-
-    def think(self):
-        self.write(4)
-
-    wait = think
-
-    def spin(self):
-        self.write(5)
-
-    def show(self, data):
-        self.write(6, data)
-
-    customize = show
-        
-    def set_brightness(self, brightness):
-        self.write(0x20, [brightness])
-    
-    def set_color_palette(self, a, b):
-        self.write(0x21, [(a >> 16) & 0xFF, (a >> 8) & 0xFF, a & 0xFF, 0, (b >> 16) & 0xFF, (b >> 8) & 0xFF, b & 0xFF, 0])
-
-    def set_vad_led(self, state):
-        self.write(0x22, [state])
-
-    def set_volume(self, volume):
-        self.write(0x23, [volume])
-
-    def change_pattern(self, pattern=None):
-        print('Not support to change pattern')
-
-    def write(self, cmd, data=[0]):
-        self.dev.ctrl_transfer(
-            usb.util.CTRL_OUT | usb.util.CTRL_TYPE_VENDOR | usb.util.CTRL_RECIPIENT_DEVICE,
-            0, cmd, 0x1C, data, self.TIMEOUT)
-
-    def close(self):
-        """
-        close the interface
-        """
-        usb.util.dispose_resources(self.dev)
-
 import sys
 import struct
 import rospy
@@ -85,14 +10,8 @@ from audio_common_msgs.msg import AudioData
 import os
 from contextlib import contextmanager
 
-# try:
-#     from pixel_ring import usb_pixel_ring_v2
-# except IOError as e:
-#     print(e)
-#     raise RuntimeError("Check the device is connected and recognized")
-
-
-
+from respeaker_driver_dependencies.pixel_ring import PixelRing
+import usb
 
 @contextmanager
 def ignore_stderr(enable=True):
@@ -159,6 +78,220 @@ PARAMETERS = {
     # 'KEYWORDDETECT': (20, 0, 'int', 1, 0, 'ro', 'Keyword detected. Current value so needs polling.'),
     'DOAANGLE': (21, 0, 'int', 359, 0, 'ro', 'DOA angle. Current value. Orientation depends on build configuration.')
 }
+
+class RespeakerDriver():
+
+    def __del__(self):
+        self.dev.close()
+    def __init__(self):
+
+        VENDOR_ID = 0x2886
+        PRODUCT_ID = 0x0018
+
+        self.dev = usb.core.find(idVendor=VENDOR_ID,
+                                 idProduct=PRODUCT_ID)
+        # self.dev.reset()
+        # rospy.sleep(10)
+
+        self.pixel_ring = PixelRing(self.dev)
+        # self.pixel_ring.set_vad_led(2)
+        self.pixel_ring.set_color_palette(a=0xFF00FF, b=0xFFFFF)
+        # self.pixel_ring.set_volume(0)
+        # self.pixel_ring.set_brightness(5)
+        # a = [255,255,255,0, #1
+        #     255,255,0,0, #2
+        #     255,0,255,0, #3
+        #     0,255,255,0, #4
+        #     255,0,0,0, #5
+        #     0,255,0,0, #6
+        #     0,0,255,0, #7
+        #     0,0,0,0,  #8
+        #     128,128,255,0, #9
+        #     128,255,128,0, #10
+        #     255,128,128,0, #11
+        #     128,128,128,0 #12
+        # ]
+        # a = [255,255,255,0] + [255,0,0,0] +  [0,0,0,0]*10
+        # self.pixel_ring.show(a)
+        self.pixel_ring.speak()
+
+        # self.pixel_ring.set_brightness(20)
+        # self.pixel_ring.set_color(r=255, g=255, b=0)
+        
+        # self.pixel_ring.trace()
+        # self.pixel_ring.set_volume(5)
+        # self.pixel_ring.trace()
+
+        # self.pixel_ring.wakeup(180)
+        # time.sleep(3)
+        # self.pixel_ring.listen()
+        # time.sleep(3)
+        # self.pixel_ring.think()
+        # time.sleep(3)
+        # self.pixel_ring.set_volume(12)
+        # time.sleep(3)
+
+
+
+        with ignore_stderr(enable=True):
+            self.pyaudio = pyaudio.PyAudio()
+
+        self.main_channel = 0
+
+        self.available_channels = None
+        self.device_index = None
+        self.rate = 16000
+        self.bitwidth = 2
+        self.bitdepth = 16
+
+        # find device
+        count = self.pyaudio.get_device_count()
+        # print(f"count {count}")
+        flag = 1
+        while flag:
+            print(f"count {self.pyaudio.get_device_count()}")
+            for i in range(count):
+                info = self.pyaudio.get_device_info_by_index(i)
+                name = info["name"]
+                maxInputChannels = info["maxInputChannels"]
+
+                if name.lower().find("respeaker") >= 0:
+                    self.available_channels = maxInputChannels
+                    self.device_index = i
+                    # print(f"Found {i}: {name} (channels: {maxInputChannels})")
+                    flag = 0
+                    break
+            count = self.pyaudio.get_device_count()
+
+            if self.device_index is None:
+                rospy.logerr("respeaker_driver: Failed to find respeaker device by name")
+                rospy.sleep(1)
+                # exit(1)
+            
+        if self.available_channels != 6:
+            rospy.loginfo(f"{self.available_channels} channel is found for respeaker")
+            rospy.loginfo("You may have to update firmware of respeaker.")
+
+        self.stream = self.pyaudio.open(
+            input=True, start=False,
+            format=pyaudio.paInt16,
+            channels=self.available_channels,
+            rate=self.rate,
+            frames_per_buffer=1024,
+            stream_callback=self.stream_callback,
+            input_device_index=self.device_index,
+        )
+
+        self.pub_audio = rospy.Publisher("/head/audio", AudioData, queue_size=10)
+        self.pub_audios = {c:rospy.Publisher(f'/head/audio/channel{c}', AudioData, queue_size=10) for c in range(self.available_channels)}
+        self.pub_doa = rospy.Publisher("/head/doa", Int32, queue_size=10)
+
+        rospy.loginfo("respeaker_driver : audio stream inited")
+        rospy.loginfo("respeaker_driver INITED")
+
+    def __del__(self):
+        self.stop()
+        try:
+            self.stream.close()
+        except:
+            pass
+        finally:
+            self.stream = None
+        try:
+            self.pyaudio.terminate()
+        except:
+            pass
+
+    def stream_callback(self, in_data, frame_count, time_info, status):
+        # split channel
+        doa = self.read('DOAANGLE')
+        self.pub_doa.publish(doa)
+
+        data = np.frombuffer(buffer=in_data, dtype=np.int16)
+        chunk_per_channel = len(data) / self.available_channels
+        data = np.reshape(data, (int(chunk_per_channel), self.available_channels))
+
+        for channel in range(self.available_channels):
+            channel_data = data[:, channel]
+
+            # self.on_audio(channel_data.tostring(), chan)
+            msg = AudioData()
+            msg.data = channel_data.tostring()
+            self.pub_audios[channel].publish(msg)
+            if channel == self.main_channel:
+                self.pub_audio.publish(msg)
+
+        return None, pyaudio.paContinue
+
+    def start(self):
+        if self.stream.is_stopped():
+            self.stream.start_stream()
+
+    def stop(self):
+        if self.stream.is_active():
+            self.stream.stop_stream()
+
+
+
+    def write(self, name, value):
+        try:
+            data = PARAMETERS[name]
+        except KeyError:
+            print(f"Parameter {name} was not found")
+            return
+
+        if data[5] == 'ro':
+            print(f'{name} is read-only')
+
+        id = data[0]
+
+        # 4 bytes offset, 4 bytes value, 4 bytes type
+        if data[2] == 'int':
+            payload = struct.pack(b'iii', data[1], int(value), 1)
+        else:
+            payload = struct.pack(b'ifi', data[1], float(value), 0)
+
+        self.dev.ctrl_transfer(
+            usb.util.CTRL_OUT | usb.util.CTRL_TYPE_VENDOR | usb.util.CTRL_RECIPIENT_DEVICE,
+            0, 0, id, payload, self.TIMEOUT)
+
+    def read(self, name):
+        try:
+            data = PARAMETERS[name]
+        except KeyError:
+            print(f"Parameter {name} was not found")
+            return
+
+        id = data[0]
+
+        cmd = 0x80 | data[1]
+        if data[2] == 'int':
+            cmd |= 0x40
+
+        length = 8
+
+        response = self.dev.ctrl_transfer(
+            usb.util.CTRL_IN | usb.util.CTRL_TYPE_VENDOR | usb.util.CTRL_RECIPIENT_DEVICE,
+            0, cmd, id, length, 9999)
+
+        response = struct.unpack(b'ii', response.tobytes())
+
+        if data[2] == 'int':
+            result = response[0]
+        else:
+            result = response[0] * (2.**response[1])
+
+        return result
+
+
+if __name__ == '__main__':
+    rospy.init_node("respeaker_node")
+    # n = RespeakerNode()
+    obj = RespeakerDriver()
+    obj.start()
+    rospy.spin()
+
+
 
 class ReSpeakerInterface():
     def __init__(self, VENDOR_ID:int = 0x2886, PRODUCT_ID:int = 0x0018, TIMEOUT:int = 100000):
@@ -464,185 +597,3 @@ class RespeakerNode(object):
                 # print("PUBLISH 1")
                 raw = AudioData(data=buf)
                 self.pub_speech_audio.publish(raw)
-
-
-class RespeakerDriver():
-
-    def __del__(self):
-        self.dev.close()
-    def __init__(self):
-
-        VENDOR_ID = 0x2886
-        PRODUCT_ID = 0x0018
-
-        self.dev = usb.core.find(idVendor=VENDOR_ID,
-                                 idProduct=PRODUCT_ID)
-        # self.dev.reset()
-        # rospy.sleep(5)
-
-        self.pixel_ring = PixelRing(self.dev)
-        self.pixel_ring.set_brightness(20)
-        self.pixel_ring.set_color(r=255, g=255, b=0)
-        
-        self.pixel_ring.trace()
-        # self.pixel_ring.set_volume(5)
-        # self.pixel_ring.trace()
-
-
-        with ignore_stderr(enable=True):
-            self.pyaudio = pyaudio.PyAudio()
-
-        self.main_channel = 0
-
-        self.available_channels = None
-        self.device_index = None
-        self.rate = 16000
-        self.bitwidth = 2
-        self.bitdepth = 16
-
-        # find device
-        count = self.pyaudio.get_device_count()
-        # print(f"count {count}")
-        flag = 1
-        while flag:
-            print(f"count {self.pyaudio.get_device_count()}")
-            for i in range(count):
-                info = self.pyaudio.get_device_info_by_index(i)
-                name = info["name"]
-                maxInputChannels = info["maxInputChannels"]
-
-                if name.lower().find("respeaker") >= 0:
-                    self.available_channels = maxInputChannels
-                    self.device_index = i
-                    # print(f"Found {i}: {name} (channels: {maxInputChannels})")
-                    flag = 0
-                    break
-            count = self.pyaudio.get_device_count()
-
-            if self.device_index is None:
-                rospy.logerr("respeaker_driver: Failed to find respeaker device by name")
-                rospy.sleep(1)
-                # exit(1)
-            
-        if self.available_channels != 6:
-            rospy.loginfo(f"{self.available_channels} channel is found for respeaker")
-            rospy.loginfo("You may have to update firmware of respeaker.")
-
-        self.stream = self.pyaudio.open(
-            input=True, start=False,
-            format=pyaudio.paInt16,
-            channels=self.available_channels,
-            rate=self.rate,
-            frames_per_buffer=1024,
-            stream_callback=self.stream_callback,
-            input_device_index=self.device_index,
-        )
-
-        self.pub_audio = rospy.Publisher("/head/audio", AudioData, queue_size=10)
-        self.pub_audios = {c:rospy.Publisher(f'/head/audio/channel{c}', AudioData, queue_size=10) for c in range(self.available_channels)}
-        self.pub_doa = rospy.Publisher("/head/doa", Int32, queue_size=10)
-
-        rospy.loginfo("respeaker_driver : audio stream inited")
-        rospy.loginfo("respeaker_driver INITED")
-
-    def __del__(self):
-        self.stop()
-        try:
-            self.stream.close()
-        except:
-            pass
-        finally:
-            self.stream = None
-        try:
-            self.pyaudio.terminate()
-        except:
-            pass
-
-    def stream_callback(self, in_data, frame_count, time_info, status):
-        # split channel
-        doa = self.read('DOAANGLE')
-        self.pub_doa.publish(doa)
-
-        data = np.frombuffer(buffer=in_data, dtype=np.int16)
-        chunk_per_channel = len(data) / self.available_channels
-        data = np.reshape(data, (int(chunk_per_channel), self.available_channels))
-
-        for channel in range(self.available_channels):
-            channel_data = data[:, channel]
-
-            # self.on_audio(channel_data.tostring(), chan)
-            msg = AudioData()
-            msg.data = channel_data.tostring()
-            self.pub_audios[channel].publish(msg)
-            if channel == self.main_channel:
-                self.pub_audio.publish(msg)
-
-        return None, pyaudio.paContinue
-
-    def start(self):
-        if self.stream.is_stopped():
-            self.stream.start_stream()
-
-    def stop(self):
-        if self.stream.is_active():
-            self.stream.stop_stream()
-
-
-
-    def write(self, name, value):
-        try:
-            data = PARAMETERS[name]
-        except KeyError:
-            print(f"Parameter {name} was not found")
-            return
-
-        if data[5] == 'ro':
-            print(f'{name} is read-only')
-
-        id = data[0]
-
-        # 4 bytes offset, 4 bytes value, 4 bytes type
-        if data[2] == 'int':
-            payload = struct.pack(b'iii', data[1], int(value), 1)
-        else:
-            payload = struct.pack(b'ifi', data[1], float(value), 0)
-
-        self.dev.ctrl_transfer(
-            usb.util.CTRL_OUT | usb.util.CTRL_TYPE_VENDOR | usb.util.CTRL_RECIPIENT_DEVICE,
-            0, 0, id, payload, self.TIMEOUT)
-
-    def read(self, name):
-        try:
-            data = PARAMETERS[name]
-        except KeyError:
-            print(f"Parameter {name} was not found")
-            return
-
-        id = data[0]
-
-        cmd = 0x80 | data[1]
-        if data[2] == 'int':
-            cmd |= 0x40
-
-        length = 8
-
-        response = self.dev.ctrl_transfer(
-            usb.util.CTRL_IN | usb.util.CTRL_TYPE_VENDOR | usb.util.CTRL_RECIPIENT_DEVICE,
-            0, cmd, id, length, 9999)
-
-        response = struct.unpack(b'ii', response.tobytes())
-
-        if data[2] == 'int':
-            result = response[0]
-        else:
-            result = response[0] * (2.**response[1])
-
-        return result
-
-
-if __name__ == '__main__':
-    rospy.init_node("respeaker_node")
-    # n = RespeakerNode()
-    obj = RespeakerDriver()
-    obj.start()
-    rospy.spin()
