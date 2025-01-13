@@ -1,0 +1,9 @@
+<launch>
+
+	<include file="$(find voice_recognizer_pocketsphinx)/launch/kws_recognizer.launch">
+	</include>
+
+	<include file="$(find voice_recognizer_pocketsphinx)/launch/cmds_recognizer.launch">
+	</include>
+
+</launch>

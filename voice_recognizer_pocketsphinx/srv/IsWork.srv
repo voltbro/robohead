@@ -1,0 +1,8 @@
+uint8 SetStatus 
+# if SetStatus=0 -> recognizing stop
+# if SetStatus=1 -> recognizing start
+# else status recognizing don`t change
+---
+uint8 Data
+# returns previous recognizing status
+# To get current status use SetStatus value != 0 or 1

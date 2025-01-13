@@ -1,7 +1,7 @@
 mors/
 # voice_recognizer/config/ru4sphinx-master/
 voice_recognizer/model/
-
+voice_recognizer_pocketsphinx/config/zero_ru_cont_8k_v3
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

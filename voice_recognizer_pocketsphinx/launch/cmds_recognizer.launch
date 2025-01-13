@@ -1,0 +1,10 @@
+<launch>
+	<group ns="voice_recognizer_pocketsphinx">
+
+		<rosparam command="load" file="$(find voice_recognizer_pocketsphinx)/config/voice_recognizer_pocketsphinx_cmds.yaml" ns="cmds_recognizer"/>		
+
+		<node name="cmds_recognizer" pkg="voice_recognizer_pocketsphinx" type="cmds_recognizer.py" output="screen" >
+    	</node>
+
+	</group>
+</launch>
