@@ -113,6 +113,11 @@ class RoboheadController():
         self.display_driver_srv_PlayMedia = rospy.ServiceProxy(display_driver_service_PlayMedia_name, PlayMedia)
         self.display_driver_pub_PlayMedia = rospy.Publisher(display_driver_topic_PlayMedia_name, Image, queue_size=1)
         self.display_driver_sub_touchscreen = rospy.Subscriber(display_driver_topic_touchscreen_name, Pose2D, self._display_driver_touchsreen_callback)
+        msg = PlayMediaRequest()
+        msg.is_blocking=0
+        msg.is_cycled=1
+        msg.path_to_file='/home/pi/robohead_ws/src/robohead/robohead_controller/scripts/loading_splash_2.mp4'
+        self.display_driver_srv_PlayMedia(msg)
         rospy.loginfo("robohead_controller: display_driver connected")
 
         # ears_driver connect
