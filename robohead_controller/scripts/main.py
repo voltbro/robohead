@@ -1,20 +1,6 @@
 import os
 import rospy
 import importlib
-# heey
-# import robohead_controller_actions
-# import robohead_controller_actions.std_greeting.action
-
-# from robohead_controller_actions.std_attention import std_attention
-# from robohead_controller_actions.std_lay import std_lay
-# from robohead_controller_actions.std_paw import std_paw
-# from robohead_controller_actions.std_sit import std_sit
-# from actions.std_state import std_state
-# from actions.std_voice import std_voice
-# from actions.std_sleep import std_sleep
-# from actions.std_wakeup import std_wakeup
-# from actions.std_low_bat import std_low_bat
-# from actions.std_camera import std_camera
 
 # imports for display_driver
 from display_driver.srv import PlayMedia, PlayMediaRequest, PlayMediaResponse
@@ -47,17 +33,32 @@ from voice_recognizer_pocketsphinx.srv import IsWork, IsWorkRequest, IsWorkRespo
 from std_msgs.msg import String
 from audio_common_msgs.msg import AudioData
 
-
 class RoboheadController():
 
+    def _execute_action(self, name:str):
+        importlib.invalidate_caches()
+        try:
+            module = self.robohead_controller_actions_match[name]
+            action = importlib.import_module(name=module, package=None)
+            action = importlib.reload(action)
+            action.run(self)
+        except BaseException as e:
+            rospy.logerr(f"Can`t execute command: {name}. Error: {e}")
+
     def _display_driver_touchsreen_callback(self, msg:Pose2D):
-        print(f"touchsreen callback! xy: {msg.x}, {msg.y}")
+        pass
+        # print(f"touchsreen callback! xy: {msg.x}, {msg.y}")
 
     def _sensor_driver_battery_callback(self, msg:BatteryState):
         self.sensor_driver_bat_voltage = msg.voltage
         self.sensor_driver_bat_current = msg.current
-        if self.sensor_driver_bat_voltage < self.low_voltage_threshold:
+        if (self.is_allow_work==True) and (self.sensor_driver_bat_voltage < self.low_voltage_threshold):
+            self.is_allow_work = False
+            self._execute_action('low_bat_action')
             rospy.logerr("Low voltage on battery!")
+        elif (self.is_allow_work==False) and (self.sensor_driver_bat_voltage >= self.low_voltage_threshold+self.low_voltage_hysteresis):
+            self._execute_action('wait_action')
+            self.is_allow_work = True
     
     def _respeaker_driver_audio_main_callback(self, msg:AudioData):
         pass
@@ -75,51 +76,33 @@ class RoboheadController():
         pass
     def _respeaker_driver_doa_angle_callback(self, msg:Int16):
         self.respeaker_driver_doa_angle = msg.data
-        # print(f"DOA: {msg.data}")
 
     def _voice_recognizer_pocketsphinx_kws_callback(self, msg:String):
-        # print(f"KWS: {msg.data}")
+        if self.is_allow_work == False:
+            return 
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(0)
-
-        importlib.invalidate_caches()
-        try:
-            module = self.robohead_controller_actions_match[msg.data]
-            action = importlib.import_module(name=module, package=None)
-            action = importlib.reload(action)
-            action.run(self)
-        except BaseException as e:
-            rospy.logerr(f"Can`t execute command: {msg.data}. Error: {e}")
-
+        self._execute_action(msg.data)
         self.voice_recognizer_pocketsphinx_cmds_srv_IsWork(1)
         
     def _voice_recognizer_pocketsphinx_cmds_callback(self, msg:String):
+        if self.is_allow_work == False:
+            return 
         self.voice_recognizer_pocketsphinx_cmds_srv_IsWork(0)
         if msg.data != '':
-            importlib.invalidate_caches()
-            try:
-                module = self.robohead_controller_actions_match[msg.data]
-                action = importlib.import_module(name=module, package=None)
-                action = importlib.reload(action)
-                action.run(self)
-            except BaseException as e:
-                rospy.logerr(f"Can`t execute command: {msg.data}. Error: {e}")
+            self._execute_action(msg.data)
 
-        importlib.invalidate_caches()
-        try:
-            module = self.robohead_controller_actions_match['wait']
-            action = importlib.import_module(name=module, package=None)
-            action = importlib.reload(action)
-            action.run(self)
-        except BaseException as e:
-            rospy.logerr(f"Can`t execute command: 'wait'. Error: {e}")
+        self._execute_action('wait_action')
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
     
     def _cv_camera_image_raw_callback(self, msg:Image):
-        self.cv_camera_image_raw = msg.data
+        # self.cv_camera_image_raw = msg.data
+        self.cv_camera_image_raw = msg
 
     def __init__(self):
 
         self.low_voltage_threshold = rospy.get_param('~low_voltage_threshold')
+        self.low_voltage_hysteresis = rospy.get_param('~low_voltage_hysteresis')
+        self.is_allow_work = True
         self.robohead_controller_actions_match = rospy.get_param('~robohead_controller_actions_match')
 
         # display_driver connect
@@ -215,15 +198,7 @@ class RoboheadController():
 
         rospy.logwarn("robohead_controller: all packages connected")
 
-        importlib.invalidate_caches()
-        try:
-            module = self.robohead_controller_actions_match['wait']
-            action = importlib.import_module(name=module, package=None)
-            action = importlib.reload(action)
-            action.run(self)
-        except BaseException as e:
-            rospy.logerr(f"Can`t execute command: 'wait'. Error: {e}")
-
+        self._execute_action("wait_action")
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
 
 if __name__ == "__main__":
