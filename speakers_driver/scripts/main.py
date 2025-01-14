@@ -14,11 +14,6 @@
 # client.add("/home/pi/robohead_ws/src/robohead/head_controller/scripts/actions/std_lay/lay.mp3")
 # client.play()
 
-
-
-
-
-
 import rospy
 import mpd
 import os
@@ -29,9 +24,7 @@ from speakers_driver.srv import GetVolume, GetVolumeRequest, GetVolumeResponse
 from speakers_driver.srv import SetVolume, SetVolumeRequest, SetVolumeResponse
 
 class SpeakersDriver():
-    def __init__(self):
-        rospy.init_node("speakers_driver")
-        
+    def __init__(self):        
         service_PlayAudio_name = rospy.get_param("~service_PlayAudio_name", "~PlayAudio")
         service_GetVolume_name = rospy.get_param("~service_GetVolume_name", "~GetVolume")
         service_SetVolume_name = rospy.get_param("~service_SetVolume_name", "~SetVolume")
@@ -59,10 +52,11 @@ class SpeakersDriver():
         self._mpd_client.single(0)
         self._mpd_client.consume(0)
         self._mpd_client.setvol(default_volume)
+        rospy.Timer(period=rospy.Duration(secs=10.0), callback=self._ping_mpd, oneshot=False)
 
-        
         rospy.loginfo("speakers_driver INITED")
-        rospy.spin()
+    def _ping_mpd(self, event):
+        self._mpd_client.ping()
 
     def __del__(self):
         self._mpd_client.close()                     # send the close command
@@ -130,4 +124,6 @@ class SpeakersDriver():
         return response
 
 if __name__ == "__main__":
+    rospy.init_node("speakers_driver")
     obj = SpeakersDriver()
+    rospy.spin()

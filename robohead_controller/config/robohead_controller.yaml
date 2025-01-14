@@ -7,8 +7,6 @@ robohead_controller_actions_match: { # сопоставление головов
   "покажи левое ухо": "robohead_controller_actions.std_left_ear.action",
   "покажи правое ухо": "robohead_controller_actions.std_right_ear.action",
   "покажи уши" : "robohead_controller_actions.std_ears.action",
-  # "сделай фото": "make_photo",
+  "сделай фото": "robohead_controller_actions.std_make_photo.action",
   "поздоровайся": "robohead_controller_actions.std_greeting.action",
-  # aboba : "left_ear",
-  # biba : "right_ear"
 }

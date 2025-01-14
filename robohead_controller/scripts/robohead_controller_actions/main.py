@@ -104,14 +104,14 @@ class RoboheadController():
             except BaseException as e:
                 rospy.logerr(f"Can`t execute command: {msg.data}. Error: {e}")
 
-            importlib.invalidate_caches()
-            try:
-                module = self.robohead_controller_actions_match['wait']
-                action = importlib.import_module(name=module, package=None)
-                action = importlib.reload(action)
-                action.run(self)
-            except BaseException as e:
-                rospy.logerr(f"Can`t execute command: 'wait'. Error: {e}")
+        importlib.invalidate_caches()
+        try:
+            module = self.robohead_controller_actions_match['wait']
+            action = importlib.import_module(name=module, package=None)
+            action = importlib.reload(action)
+            action.run(self)
+        except BaseException as e:
+            rospy.logerr(f"Can`t execute command: 'wait'. Error: {e}")
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
     
     def _cv_camera_image_raw_callback(self, msg:Image):
@@ -208,7 +208,7 @@ class RoboheadController():
 
         # cv_camera connect
         self.cv_camera_image_raw = [0]
-        cv_camera_camera_topic_name = rospy.get_param('~/camera_topic_name')
+        cv_camera_camera_topic_name = rospy.get_param('~camera_topic_name')
         rospy.wait_for_message(cv_camera_camera_topic_name, Image)
         self.cv_camera_sub_image_raw = rospy.Subscriber(cv_camera_camera_topic_name, Image, self._cv_camera_image_raw_callback)
         rospy.loginfo("robohead_controller: cv_camera connected")
