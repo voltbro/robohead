@@ -1,5 +1,5 @@
 import rospy
-from std_msgs.msg import String, Empty
+from std_msgs.msg import String
 from audio_common_msgs.msg import AudioData
 from pocketsphinx.pocketsphinx import *
 from sphinxbase.sphinxbase import *
@@ -88,7 +88,7 @@ class CommandsRecognizer(object):
                 if self._decoder.hyp() is not None:
                     msg = String()
                     msg.data = self._decoder.hyp().hypstr
-                    rospy.loginfo("Detected command: %s ", msg.data)
+                    # rospy.loginfo("Detected command: %s ", msg.data)
                     self._pub_cmds.publish(msg)
                 self._decoder.start_utt()
 

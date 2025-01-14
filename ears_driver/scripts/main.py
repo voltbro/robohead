@@ -1,6 +1,6 @@
 from adafruit_servokit import ServoKit
 import rospy
-from ears_driver.srv import EarsSetAngle, EarsSetAngleResponse
+from ears_driver.srv import EarsSetAngle, EarsSetAngleResponse, EarsSetAngleRequest
 
 class EarsDriverPy():
     def __init__(self)->None:
@@ -28,7 +28,7 @@ class EarsDriverPy():
         rospy.loginfo("ears_driver INITED")
         rospy.spin()
         
-    def _requester(self, request:EarsSetAngle):
+    def _requester(self, request:EarsSetAngleRequest):
         response = EarsSetAngleResponse()
         if self._constraint_L_from<=request.left_ear_angle<=self._constraint_L_to:
             if self._constraint_R_from<=request.right_ear_angle<=self._constraint_R_to:

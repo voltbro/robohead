@@ -63,7 +63,7 @@ class KeyWordsRecognizer(object):
             self._decoder.process_raw(audio_buffer, False, False)
             if self._decoder.hyp() is not None:
                 for seg in self._decoder.seg():
-                    rospy.loginfo("Detected key word: %s ", seg.word)
+                    # rospy.loginfo("Detected key word: %s ", seg.word)
                     self._decoder.end_utt()
                     msg = String()
                     msg.data = seg.word

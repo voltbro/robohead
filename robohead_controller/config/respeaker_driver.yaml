@@ -1,0 +1,37 @@
+usb:
+  vendor_id: 0x2886
+  product_id: 0x0018
+  reset_time_sleep: 10 # время ожидания для переинициализации usb устройства после reset 
+  timeout: 8000
+
+audio:
+  rate: 16000
+  chunk: 1024 # количество frame в буффере, то же самое что: period, framebuffer и т.д.
+  # используется формат pyaudio.paInt16
+
+led:
+  brightness: 10 # 0..31
+  A_color:
+    - 255
+    - 0
+    - 0
+  B_color:
+    - 255
+    - 255
+    - 255
+
+ros:
+  topic_audio_main_name: "~audio/main"
+  topic_audio_channel_0_name: "~audio/channel_0"
+  topic_audio_channel_1_name: "~audio/channel_1"
+  topic_audio_channel_2_name: "~audio/channel_2"
+  topic_audio_channel_3_name: "~audio/channel_3"
+  topic_audio_channel_4_name: "~audio/channel_4"
+  topic_audio_channel_5_name: "~audio/channel_5"
+  topic_doa_angle_name: "~doa_angle"
+
+  main_channel: 0 # Выбранный канал 0..5 будет дублироваться в топик основного аудио topic_audio_main_name
+
+
+doa_yaw_offset: -90 # смещает нулевое положение doa_angle на doa_yaw_offset градусов. Значение >0 - против часовой стрелки, значение <0 - по часовой стрелке
+

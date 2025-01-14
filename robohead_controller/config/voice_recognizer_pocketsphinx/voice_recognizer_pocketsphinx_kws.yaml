@@ -1,5 +1,5 @@
 # kws config
-topic_audio_name: "/respeaker_driver/audio/main" # топик, откуда берется аудио сигнал для распознавания
+topic_audio_name: "/robohead_controller/respeaker_driver/audio/main" # топик, откуда берется аудио сигнал для распознавания
 topic_kws_name: "~keywords" # топик, куда публикуются распознанные ключевые слова (keywords)
 srv_IsWork_name: "~IsWork" # сервис управления работой распознавания
 default_IsWork: 1 # запущено ли распознования по умолчанию? 1 - да, 0 - нет
@@ -8,5 +8,5 @@ buffer_size: 5 # Количество фреймов, которые подаю�
 
 logs_output: '/dev/null' # путь до файла, куда выводятся логи pocketsphinx
 hmm: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/zero_ru_cont_8k_v3/zero_ru.cd_cont_4000" # путь до акустической модели
-dict: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/dictionary.dict" # путь до файла произношений 
-kws: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/kwslist.txt" # путь до списка ключевых слов
+dict: "/home/pi/robohead_ws/src/robohead/robohead_controller/config/voice_recognizer_pocketsphinx/dictionary.dict" # путь до файла произношений 
+kws: "/home/pi/robohead_ws/src/robohead/robohead_controller/config/voice_recognizer_pocketsphinx/kwslist.txt" # путь до списка ключевых слов

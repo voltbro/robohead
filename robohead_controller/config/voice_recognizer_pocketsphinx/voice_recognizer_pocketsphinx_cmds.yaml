@@ -1,5 +1,5 @@
 # cmds config
-topic_audio_name: "/respeaker_driver/audio/main" # топик, откуда берется аудио сигнал для распознавания
+topic_audio_name: "/robohead_controller/respeaker_driver/audio/main" # топик, откуда берется аудио сигнал для распознавания
 topic_cmds_name: "~commands" # топик, куда публикуются распознанные команды
 srv_IsWork_name: "~IsWork" # сервис управления работой распознавания
 default_IsWork: 1 # запущено ли распознования по умолчанию? 1 - да, 0 - нет
@@ -8,8 +8,8 @@ buffer_size: 5 # Количество фреймов, которые подаю�
 
 logs_output: '/dev/null' # путь до файла, куда выводятся логи pocketsphinx
 hmm: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/zero_ru_cont_8k_v3/zero_ru.cd_cont_4000" # путь до акустической модели
-dict: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/dictionary.dict" # путь до файла произношений 
-gram_file: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/gram.txt" # путь до файла с грамматикой (описанием возможных команд)
+dict: "/home/pi/robohead_ws/src/robohead/robohead_controller/config/voice_recognizer_pocketsphinx/dictionary.dict" # путь до файла произношений 
+gram_file: "/home/pi/robohead_ws/src/robohead/robohead_controller/config/voice_recognizer_pocketsphinx/gram.txt" # путь до файла с грамматикой (описанием возможных команд)
 grammar_name: 'robohead_cmds' # название грамматики, искать в файле грамматики gram_file у ключевого слова grammar. Пример grammar robohead_cmds
 rule_name: 'commands' # Название правила в файле грамматики gram_file, стоит рядом со словом public. Пример: public <cmds> 
 timeout: 3 # количество секунд таймаута, по истечении которых распознавание произойдет принудительно. До таймаута распознавание происходит до прекращения речи
