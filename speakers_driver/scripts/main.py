@@ -4,16 +4,9 @@
 # sudo apt install mpc - опционально - клиент для терминала
 # pip install python-mpd2
 
-
-
-
-
 # # client.connect("localhost", 6600)  # connect to localhost:6600
 # print(client.mpd_version)          # print the MPD version
 # print(client.find("any", "house")) # print result of the command "find any house"
-
-# # client.add("/home/pi/robohead_ws/src/robohead/head_controller/scripts/actions/std_lay/lay.mp3")
-
 # client.clear()
 # # client.add("test.mp3")
 # # client.add("http://chanson.hostingradio.ru:8041/chanson256.mp3")
@@ -21,12 +14,6 @@
 # client.add("/home/pi/robohead_ws/src/robohead/head_controller/scripts/actions/std_lay/lay.mp3")
 # client.play()
 
-# while (status:=client.status()['state'])=='play':
-#     print(status)
-# print(client.status()['state'])
-
-# client.close()                     # send the close command
-# client.disconnect()                # disconnect from the server
 
 
 

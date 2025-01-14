@@ -3,8 +3,8 @@
 	<include file="$(find robohead_controller)/launch/dependencies.launch">
 	</include>
 
+	<rosparam command="load" file="$(find robohead_controller)/config/robohead_controller.yaml" ns="robohead_controller"/>
 	<node name="robohead_controller" pkg="robohead_controller" type="main.py" output="screen" >
 	</node>
-
 
 </launch>

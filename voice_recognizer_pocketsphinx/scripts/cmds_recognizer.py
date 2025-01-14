@@ -90,6 +90,11 @@ class CommandsRecognizer(object):
                     msg.data = self._decoder.hyp().hypstr
                     # rospy.loginfo("Detected command: %s ", msg.data)
                     self._pub_cmds.publish(msg)
+                else:
+                    msg = String()
+                    msg.data = ""
+                    # rospy.loginfo("Detected command: %s ", msg.data)
+                    self._pub_cmds.publish(msg)
                 self._decoder.start_utt()
 
 if __name__ == "__main__":

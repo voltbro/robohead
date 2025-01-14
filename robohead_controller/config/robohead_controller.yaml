@@ -1,0 +1,14 @@
+low_voltage_threshold: 3.3
+camera_topic_name: "~cv_camera/image_raw"
+
+robohead_controller_actions_match: { # сопоставление голововой команды из voice_recognizer_pocketsphinx/gram.txt и файла, запускаемого на исполнение
+  "wait" : "robohead_controller_actions.std_wait.action",
+  "робот" : "robohead_controller_actions.std_attention.action",
+  "покажи левое ухо": "robohead_controller_actions.std_left_ear.action",
+  "покажи правое ухо": "robohead_controller_actions.std_right_ear.action",
+  "покажи уши" : "robohead_controller_actions.std_ears.action",
+  # "сделай фото": "make_photo",
+  "поздоровайся": "robohead_controller_actions.std_greeting.action",
+  # aboba : "left_ear",
+  # biba : "right_ear"
+}
