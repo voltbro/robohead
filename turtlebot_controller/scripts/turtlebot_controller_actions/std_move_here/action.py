@@ -36,7 +36,7 @@ def run(turtlebot_controller:TurtlebotController): # Обязательно на
     msg = Twist()
     msg.linear.x = 0.2
     turtlebot_controller.turtlebot_pub_cmd_vel.publish(msg)
-    while delta<0.2:
+    while delta<0.5:
         delta = math.sqrt((turtlebot_controller.turtlebot_odom_pose2d.x-start_xy[0])**2+(turtlebot_controller.turtlebot_odom_pose2d.y-start_xy[1])**2)
         
     msg.linear.x = 0
