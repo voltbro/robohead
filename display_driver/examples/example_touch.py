@@ -41,7 +41,7 @@ touch_sub = rospy.Subscriber("/display_driver/touchscreen", Pose2D, callback=dra
 service_PlayMedia = rospy.ServiceProxy('/display_driver/PlayMedia', PlayMedia)
 
 request = PlayMediaRequest()
-request.path_to_file = "__BLANK__"
+request.path_to_file = ""
 request.is_blocking = 1
 request.is_cycled = 0
 service_PlayMedia(request) # Останавливаем воспроизведение медиа на экране

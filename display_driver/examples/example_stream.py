@@ -36,9 +36,9 @@ image_pub = rospy.Publisher("/display_driver/PlayMedia", Image, queue_size=1)   
 service_PlayMedia = rospy.ServiceProxy('/display_driver/PlayMedia', PlayMedia)
 
 request = PlayMediaRequest()
-request.path_to_file = "__BLANK__"
+request.path_to_file = ""
 request.is_blocking = 1
 request.is_cycled = 0
-service_PlayMedia(request) # Останавливаем воспроизведение медиа на экране
+service_PlayMedia(request) # Останавливаем воспроизведение медиа на экране, вызывая сервис с пустым путем к файлу
 
 rospy.spin() # Зацикливаем работу

@@ -20,8 +20,6 @@ from math import sin, cos, radians
 class DisplayDriver():
 
     def __init__(self) -> None:
-        rospy.init_node("display_driver")
-
         self._height = rospy.get_param("~screen_resolution_h", 1080)
         self._width = rospy.get_param("~screen_resolution_w", 1080)
         self._color_channels = rospy.get_param("~color_channels", 3)
@@ -35,15 +33,13 @@ class DisplayDriver():
         self._touchscreen_resolution_w = rospy.get_param("~touchscreen_resolution_w", 4096)
         self._touchscreen_rotate = rospy.get_param("~touch_rotate", 0)
 
-        self._blank_name = rospy.get_param("~blank_name", "__BLANK__")
-        
         service_PlayMedia_name = rospy.get_param("~service_PlayMedia_name", "~PlayMedia")
         topic_PlayMedia_name = rospy.get_param("~topic_PlayMedia_name", "~PlayMedia")
         topic_touchsreen_name = rospy.get_param("~topic_touchscreen_name", "~touchscreen")
 
         self._semaphore = multiprocessing.Semaphore(1)
         self._showing_file = multiprocessing.Array(c_char, 4096)
-        self._showing_file.value = self._blank_name.encode()
+        self._showing_file.value = ''.encode()
         self._is_played = multiprocessing.Value('i', 0)
         self._is_cycled = multiprocessing.Value('i', 0)
         
@@ -72,7 +68,6 @@ class DisplayDriver():
 
         signal.signal(signal.SIGINT, self.stop)
         rospy.loginfo("display_driver INITED")
-        rospy.spin()
 
     def _img_sub(self, image_msg:Image):
         cv_image = self._cvBridge.imgmsg_to_cv2(image_msg, "bgr8")
@@ -84,7 +79,7 @@ class DisplayDriver():
     def _requester(self, request:PlayMediaRequest):
         response = PlayMediaResponse()
 
-        if (request.path_to_file == self._blank_name) or os.path.exists(request.path_to_file):
+        if (request.path_to_file == '') or os.path.exists(request.path_to_file):
             self._semaphore.acquire()
             self._is_played.value = 0
             self._is_cycled.value = request.is_cycled
@@ -140,7 +135,7 @@ class DisplayDriver():
             is_cycled = self._is_cycled.value
             self._semaphore.release()
             
-            if current_file == self._blank_name:
+            if current_file == '':
                 if is_played == 0:
                     self._fb[:] = 0
                     self._semaphore.acquire()
@@ -240,4 +235,6 @@ class DisplayDriver():
 
 
 if __name__ == "__main__":
+    rospy.init_node("display_driver")
     obj = DisplayDriver()
+    rospy.spin()
