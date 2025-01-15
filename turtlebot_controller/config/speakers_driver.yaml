@@ -1,0 +1,12 @@
+service_PlayAudio_name: "~PlayAudio"
+service_GetVolume_name: "~GetVolume"
+service_SetVolume_name: "~SetVolume"
+
+
+mpd_host: "/run/mpd/socket"
+mpd_port: 6600
+
+update_hz: 10
+default_volume: 50
+
+blank_name: "__BLANK__"

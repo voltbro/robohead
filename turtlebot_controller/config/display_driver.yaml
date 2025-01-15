@@ -1,0 +1,18 @@
+screen_resolution_h: 1080
+screen_resolution_w: 1080
+color_channels: 3
+framerate: 60
+fb_name: "/dev/fb0"
+screen_rotate: 3 # 0, 1, 2, 3 по часовой стрелке
+
+use_touch: True # True/False
+touchscreen_name: "waveshare"
+touchscreen_resolution_h: 4096
+touchscreen_resolution_w: 4096
+touch_rotate: 3 # 0, 1, 2, 3  по часовой стрелке
+
+blank_name: "__BLANK__" # при вызове сервиса PlayMedia в поле path_to_media указать это имя __BLANK__, тогда экран очистится
+
+service_PlayMedia_name: "~PlayMedia"
+topic_PlayMedia_name: "~PlayMedia"
+topic_touchscreen_name: "~touchscreen"

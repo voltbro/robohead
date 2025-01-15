@@ -1,0 +1,13 @@
+service_name: "~EarsSetAngle"
+
+std_L_angle: 0
+std_R_angle: 0
+
+servo_L_channel: 11
+servo_R_channel: 10
+
+constraints:
+  L_from: -90
+  L_to: 90
+  R_from: -90
+  R_to: 90

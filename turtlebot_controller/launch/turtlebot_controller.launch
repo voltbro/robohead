@@ -1,0 +1,10 @@
+<launch>
+
+	<include file="$(find turtlebot_controller)/launch/dependencies.launch">
+	</include>
+
+	<rosparam command="load" file="$(find turtlebot_controller)/config/turtlebot_controller.yaml" ns="turtlebot_controller"/>
+	<node name="turtlebot_controller" pkg="turtlebot_controller" type="main.py" output="screen" >
+	</node>
+
+</launch>
