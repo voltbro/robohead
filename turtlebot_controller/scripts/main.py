@@ -56,11 +56,11 @@ class RoboheadController():
     def _sensor_driver_battery_callback(self, msg:BatteryState):
         self.sensor_driver_bat_voltage = msg.voltage
         self.sensor_driver_bat_current = msg.current
-        if (self.sensor_driver_bat_voltage < self.low_voltage_threshold):
+        if (self.sensor_driver_bat_voltage < self.low_voltage_threshold) or (self.is_allow_work==False):
             self.is_allow_work = False
             self._execute_action('low_bat_action')
             rospy.logerr("Low voltage on battery!")
-        elif (self.is_allow_work==False) and (self.sensor_driver_bat_voltage >= self.low_voltage_threshold+self.low_voltage_hysteresis):
+        if (self.is_allow_work==False) and (self.sensor_driver_bat_voltage >= self.low_voltage_threshold+self.low_voltage_hysteresis):
             self._execute_action('wait_action')
             self.is_allow_work = True
     
