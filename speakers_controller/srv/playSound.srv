@@ -1,4 +1,0 @@
-string FileName
-uint8 IsBreakable
----
-uint8 Data

@@ -1,6 +1,0 @@
-<launch>
-
-	<node name="ears_controller_node" pkg="ears_controller" type="main.py" output="screen" >
-	</node>
-
-</launch>

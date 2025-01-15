@@ -1,6 +1,0 @@
-<launch>
-
-	<node name="respeaker_controller_node" pkg="respeaker_controller" type="main.py" output="screen" >
-	</node>
-
-</launch>

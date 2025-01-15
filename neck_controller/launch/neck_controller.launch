@@ -1,6 +1,0 @@
-<launch>
-
-	<node name="neck_controller_node" pkg="neck_controller" type="main.py" output="screen" >
-	</node>
-
-</launch>
