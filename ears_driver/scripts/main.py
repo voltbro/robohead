@@ -4,10 +4,7 @@ from ears_driver.srv import EarsSetAngle, EarsSetAngleResponse, EarsSetAngleRequ
 
 class EarsDriverPy():
     def __init__(self)->None:
-        
         self._kit = ServoKit(channels=16)
-
-        rospy.init_node("ears_driver")
 
         srv_name = rospy.get_param("~service_name", "~EarsSetAngle")
         std_L_angle = rospy.get_param("~std_L_angle", 0)
@@ -26,7 +23,6 @@ class EarsDriverPy():
         rospy.Service(srv_name, EarsSetAngle, self._requester)
 
         rospy.loginfo("ears_driver INITED")
-        rospy.spin()
         
     def _requester(self, request:EarsSetAngleRequest):
         response = EarsSetAngleResponse()
@@ -51,4 +47,6 @@ class EarsDriverPy():
         self._kit.servo[self._servoR_chnl].angle = 90-self._right_ear
 
 if __name__ == "__main__":
-    a = EarsDriverPy()
+    rospy.init_node("ears_driver")
+    EarsDriverPy()
+    rospy.spin()
