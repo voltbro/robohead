@@ -44,8 +44,7 @@ class Recorder():
         self.flag = 0
 
     def callback(self, msg:AudioData):
-
-        print(self.i, (self.RATE / self.CHUNK * self.RECORD_SECONDS))
+        # print(self.i, (self.RATE / self.CHUNK * self.RECORD_SECONDS))
         self.frames.append(msg.data)
         self.i += 1
         if (self.i > int(self.RATE / self.CHUNK * self.RECORD_SECONDS)) and self.flag==0:
@@ -70,7 +69,7 @@ r5 = Recorder("rec5.wav") # channel 5 - звук, воспроизводимый
 
 r = Recorder("rec.wav") # channel main (0)
 rospy.init_node("example_recording")
-
+print("start recording!")
 rospy.Subscriber("/respeaker_driver/audio/channel_0", AudioData, r0.callback)
 rospy.Subscriber("/respeaker_driver/audio/channel_1", AudioData, r1.callback)
 rospy.Subscriber("/respeaker_driver/audio/channel_2", AudioData, r2.callback)
@@ -78,6 +77,6 @@ rospy.Subscriber("/respeaker_driver/audio/channel_3", AudioData, r3.callback)
 rospy.Subscriber("/respeaker_driver/audio/channel_4", AudioData, r4.callback)
 rospy.Subscriber("/respeaker_driver/audio/channel_5", AudioData, r5.callback)
 rospy.Subscriber("/respeaker_driver/audio/main", AudioData, r.callback)
-
+rospy.Timer(rospy.Duration(6), callback=lambda e: rospy.signal_shutdown("end record"))
 rospy.spin()
 

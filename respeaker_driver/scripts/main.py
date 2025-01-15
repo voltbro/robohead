@@ -14,7 +14,6 @@ from respeaker_driver_dependencies.utils import *
 
 class RespeakerDriver():        
     def __init__(self):
-
         # Get rosparams
         vendor_id = rospy.get_param("~usb/vendor_id", 0x2886)
         product_id = rospy.get_param("~usb/product_id", 0x0018)
@@ -101,7 +100,6 @@ class RespeakerDriver():
         self.pub_doa = rospy.Publisher(topic_doa_angle_name, Int16, queue_size=10)
 
         self.prev_doa = 400 # просто стартовое значение
-        self.start_stream()
         rospy.loginfo("respeaker_driver INITED")
 
     def __del__(self):
@@ -217,113 +215,5 @@ class RespeakerDriver():
 if __name__ == '__main__':
     rospy.init_node("respeaker_node")
     obj = RespeakerDriver()
+    obj.start_stream()
     rospy.spin()
-
-
-
-# class ReSpeakerInterface():
-#     def __init__(self):
-#         self.TIMEOUT = TIMEOUT
-
-#         # self.write("AGCONOFF", 0)
-
-#     def is_voice(self):
-#         return self.read('VOICEACTIVITY')
-
-#     @property
-#     def direction(self):
-#         return self.read('DOAANGLE')
-
-
-# class RespeakerNode(object):
-#     def __init__(self):
-#         rospy.on_shutdown(self.on_shutdown)
-#         self.update_rate = rospy.get_param("~update_rate", 10.0)
-#         self.sensor_frame_id = rospy.get_param("~sensor_frame_id", "respeaker_base")
-#         self.doa_xy_offset = rospy.get_param("~doa_xy_offset", 0.0)
-#         self.doa_yaw_offset = rospy.get_param("~doa_yaw_offset", 90.0)
-#         self.speech_prefetch = rospy.get_param("~speech_prefetch", 0.5)
-#         self.speech_continuation = rospy.get_param("~speech_continuation", 0.5)
-#         self.speech_max_duration = rospy.get_param("~speech_max_duration", 7.0)
-#         self.speech_min_duration = rospy.get_param("~speech_min_duration", 0.1)
-#         self.main_channel = rospy.get_param('~main_channel', 0)
-#         suppress_pyaudio_error = rospy.get_param("~suppress_pyaudio_error", True)
-#         #
-#         self.respeaker = ReSpeakerInterface()
-#         self.respeaker_audio = ReSpeakerAudio(self.on_audio)
-#         print("Audio inited")
-#         self.speech_audio_buffer = bytes()
-#         self.is_speeching = False
-#         self.speech_stopped = rospy.Time(0)
-#         self.prev_is_voice = None
-#         self.prev_doa = None
-#         # advertise
-#         print("Advertise")
-#         self.pub_vad = rospy.Publisher("/head/respeaker/is_speeching", Bool, queue_size=1, latch=True)
-#         self.pub_doa_raw = rospy.Publisher("/head/sound_direction", Int32, queue_size=1, latch=True)
-
-#         self.pub_audio = rospy.Publisher("/head/audio", AudioData, queue_size=10)
-#         self.pub_speech_audio = rospy.Publisher("/head/respeaker/speech_audio", AudioData, queue_size=10)
-#         self.pub_audios = {c:rospy.Publisher(f'/head/audio/channel{c}', AudioData, queue_size=10) for c in self.respeaker_audio.channels}
-
-#         # start
-#         print("Start")
-#         self.speech_prefetch_bytes = int(
-#             self.speech_prefetch * self.respeaker_audio.rate * self.respeaker_audio.bitdepth / 8.0)
-#         self.speech_prefetch_buffer = bytes()
-#         self.respeaker_audio.start()
-#         self.info_timer = rospy.Timer(rospy.Duration(1.0 / self.update_rate),
-#                                       self.on_timer)
-#         self.timer_led = None
-#         self.sub_led = rospy.Subscriber("/head/respeaker/status_led", ColorRGBA, self.on_status_led)
-#         print("Inited ALL!")
-
-
-#     def on_audio(self, data, channel):
-#         self.pub_audios[channel].publish(AudioData(data=data))
-#         if channel == self.main_channel:
-#             self.pub_audio.publish(AudioData(data=data))
-
-#             if self.is_speeching:
-#                 if len(self.speech_audio_buffer) == 0:
-#                     self.speech_audio_buffer = self.speech_prefetch_buffer
-#                 self.speech_audio_buffer += bytes(data)
-#             else:
-#                 self.speech_prefetch_buffer += bytes(data)
-#                 # print("A?")
-#                 self.speech_prefetch_buffer = self.speech_prefetch_buffer[-self.speech_prefetch_bytes:]
-
-#     def on_timer(self, event):
-       
-#         stamp = event.current_real or rospy.Time.now()
-#         is_voice = self.respeaker.is_voice()
-
-#         doa = self.respeaker.direction
-
-#         # vad
-       
-#         if is_voice != self.prev_is_voice:
-#             self.pub_vad.publish(Bool(data=is_voice))
-#             self.prev_is_voice = is_voice
-
-#         # doa
-#         if doa != self.prev_doa:
-#             self.pub_doa_raw.publish(Int32(data=doa))
-#             self.prev_doa = doa
-        
-#         # speech audio
-#         if is_voice:
-#             self.speech_stopped = stamp
-#         if (stamp - self.speech_stopped) < rospy.Duration(self.speech_continuation):
-#             self.is_speeching = True
-#         elif self.is_speeching:
-#             buf = self.speech_audio_buffer
-#             self.speech_audio_buffer = str()
-#             self.is_speeching = False
-#             duration = 8.0 * len(buf) * self.respeaker_audio.bitwidth
-#             duration = duration / self.respeaker_audio.rate / self.respeaker_audio.bitdepth
-#             # print(f"Speech detected for {duration} seconds")
-#             if self.speech_min_duration <= duration < self.speech_max_duration:
-#                 # print("PUBLISH 1")
-#                 raw = AudioData(data=buf)
-#                 self.pub_speech_audio.publish(raw)

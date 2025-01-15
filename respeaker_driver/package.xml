@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>respeaker_driver</name>
-  <version>0.0.0</version>
+  <version>1.2.0</version>
   <description>The respeaker_driver package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="pi@todo.todo">pi</maintainer>
+  <maintainer email="kolesnikovpi2005@mail.ru">kolezo_pi</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
@@ -25,7 +25,7 @@
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
   <!-- Example: -->
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="kolesnikovpi2005@mail.ru">kolezo_pi</author>
 
 
   <!-- The *depend tags are used to specify dependencies -->
