@@ -5,10 +5,7 @@ import multiprocessing
 
 class NeckDriver():
     def __init__(self)->None:
-        
         self._kit = ServoKit(channels=16)
-
-        rospy.init_node("neck_driver")
 
         srv_name = rospy.get_param("~service_name", "~NeckSetAngle")
         std_vertical_angle = rospy.get_param("~std_vertical_angle", 0)
@@ -36,7 +33,6 @@ class NeckDriver():
 
         rospy.Service(srv_name, NeckSetAngle, self._requester)
         rospy.loginfo("neck_driver INITED")
-        rospy.spin()
 
     def _trajectory_planner(self):
         prev_goal_v, prev_goal_h = self._current_angles.value
@@ -107,4 +103,6 @@ class NeckDriver():
         self._current_angles.value = (self.__vertical, self.__horizontal)
 
 if __name__ == "__main__":
+    rospy.init_node("neck_driver")
     obj = NeckDriver()
+    rospy.spin()
