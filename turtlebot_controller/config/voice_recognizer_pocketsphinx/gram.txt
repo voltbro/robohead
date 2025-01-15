@@ -4,8 +4,10 @@ grammar robohead_cmds;
 
 public <commands> = <command> ;
 
-<command> = <command_1> | <command_2> | <command_3> ;
+<command> = <command_1> | <command_2> | <command_3> | <command_4> | <command_5> ;
 
 <command_1> = покажи ( уши | левое ухо | правое ухо ) ;
 <command_2> = поздоровайся ;
 <command_3> = сделай фото ;
+<command_4> = повернись ( влево | вправо ) ;
+<command_5> = езжай ( сюда | отсюда ) ;

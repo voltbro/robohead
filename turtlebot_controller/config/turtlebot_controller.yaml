@@ -12,6 +12,10 @@ robohead_controller_actions_match: { # сопоставление головов
   "покажи уши" : "turtlebot_controller_actions.std_ears.action",
   "сделай фото": "turtlebot_controller_actions.std_make_photo.action",
   "поздоровайся": "turtlebot_controller_actions.std_greeting.action",
+  "повернись вправо": "turtlebot_controller_actions.std_turn_right.action",
+  "повернись влево": "turtlebot_controller_actions.std_turn_left.action",
+  "езжай сюда": "turtlebot_controller_actions.std_move_here.action",
+  "езжай отсюда": "turtlebot_controller_actions.std_move_away.action",
 }
 
 turtlebot_topic_cmd_vel_name: "/cmd_vel"
