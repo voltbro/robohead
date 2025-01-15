@@ -8,5 +8,3 @@ mpd_port: 6600
 
 update_hz: 10
 default_volume: 20
-
-blank_name: "__BLANK__"

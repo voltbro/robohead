@@ -4,7 +4,7 @@ def run(robohead_controller:RoboheadController): # Обязательно нал
     script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
     
     msg = PlayMediaRequest()
-    msg.is_blocking = 0
+    msg.is_blocking = 1
     msg.is_cycled = 0
     msg.path_to_file = script_path + 'low_bat.png'
     robohead_controller.display_driver_srv_PlayMedia(msg)
@@ -22,7 +22,7 @@ def run(robohead_controller:RoboheadController): # Обязательно нал
     robohead_controller.neck_driver_srv_NeckSetAngle(msg)
 
     msg = PlayAudioRequest()
-    msg.path_to_file = '__BLANK__'
-    msg.is_blocking = 0
+    msg.path_to_file = ''
+    msg.is_blocking = 1
     msg.is_cycled = 0
     robohead_controller.speakers_driver_srv_PlayAudio(msg)

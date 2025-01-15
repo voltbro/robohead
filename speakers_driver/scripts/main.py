@@ -35,8 +35,6 @@ class SpeakersDriver():
         self._update_hz = rospy.get_param("~update_hz", 10)
         default_volume = rospy.get_param("~default_volume", 30)
 
-        self._blank_name = rospy.get_param("~blank_name", "__BLANK__")
-
         rospy.Service(service_PlayAudio_name, PlayAudio, self._requester_PlayAudio)
         rospy.Service(service_GetVolume_name, GetVolume, self._requester_GetVolume)
         rospy.Service(service_SetVolume_name, SetVolume, self._requester_SetVolume)
@@ -78,7 +76,7 @@ class SpeakersDriver():
 
     def _requester_PlayAudio(self, request:PlayAudioRequest):
         response = PlayAudioResponse()
-        if (request.path_to_file==self._blank_name):
+        if (request.path_to_file==''):
             self._mpd_client.stop()
             response = 0
 
