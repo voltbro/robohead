@@ -52,7 +52,7 @@ class RespeakerDriver():
         try:
             self.pixel_ring.set_vad_led(1)
         except usb.USBError as err:
-            rospy.logerr(f"error: {err}\nReset usb respeaker...")
+            rospy.logerr(f"error in dev: {err}\nReset usb respeaker...")
             self.dev.reset()
             rospy.sleep(reset_time_sleep)
         self.pixel_ring.set_vad_led(2)
@@ -84,15 +84,20 @@ class RespeakerDriver():
         if self.available_channels != 6:
             rospy.loginfo(f"{self.available_channels} channel is found for audio respeaker device\nYou may have to update firmware of respeaker.")
 
-        self.stream = self.pyaudio.open(
-            input=True, start=False,
-            format=pyaudio.paInt16,
-            channels=self.available_channels,
-            rate=rate,
-            frames_per_buffer=chunk,
-            stream_callback=self._stream_callback,
-            input_device_index=device_index,
-        )
+        try:
+            self.stream = self.pyaudio.open(
+                input=True, start=False,
+                format=pyaudio.paInt16,
+                channels=self.available_channels,
+                rate=rate,
+                frames_per_buffer=chunk,
+                stream_callback=self._stream_callback,
+                input_device_index=device_index,
+            )
+        except BaseException as err:
+            rospy.logerr(f"error in stream: {err}\nReset usb respeaker...")
+            self.dev.reset()
+            rospy.sleep(reset_time_sleep)
 
         # INIT ROS subjects
         self.pub_audio_main = rospy.Publisher(topic_audio_main_name, AudioData, queue_size=10)
@@ -210,7 +215,6 @@ class RespeakerDriver():
             result = response[0] * (2.**response[1])
 
         return result
-
 
 if __name__ == '__main__':
     rospy.init_node("respeaker_node")
