@@ -12,4 +12,5 @@ robohead_controller_actions_match: { # сопоставление головов
   "покажи уши" : "robohead_controller_actions.std_ears.action",
   "сделай фото": "robohead_controller_actions.std_make_photo.action",
   "поздоровайся": "robohead_controller_actions.std_greeting.action",
+  "следи за шариком": "robohead_controller_actions.std_tracking_circle.action",
 }

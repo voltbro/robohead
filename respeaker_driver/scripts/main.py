@@ -98,6 +98,15 @@ class RespeakerDriver():
             rospy.logerr(f"error in stream: {err}\nReset usb respeaker...")
             self.dev.reset()
             rospy.sleep(reset_time_sleep)
+            self.stream = self.pyaudio.open(
+                input=True, start=False,
+                format=pyaudio.paInt16,
+                channels=self.available_channels,
+                rate=rate,
+                frames_per_buffer=chunk,
+                stream_callback=self._stream_callback,
+                input_device_index=device_index,
+            )
 
         # INIT ROS subjects
         self.pub_audio_main = rospy.Publisher(topic_audio_main_name, AudioData, queue_size=10)

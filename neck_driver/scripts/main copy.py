@@ -1,7 +1,7 @@
 from adafruit_servokit import ServoKit
 import rospy
 from neck_driver.srv import NeckSetAngle, NeckSetAngleResponse, NeckSetAngleRequest
-import threading
+import multiprocessing
 
 class NeckDriver():
     def __init__(self)->None:
@@ -22,25 +22,26 @@ class NeckDriver():
         self._constraint_h_from = rospy.get_param("~constraints/h_from", -30)
         self._constraint_h_to = rospy.get_param("~constraints/h_to", 30)
 
-        self._goal_response = (std_vertical_angle, std_horizontal_angle, 0)
-        self._current_angles = (std_vertical_angle, std_horizontal_angle)
+        manager = multiprocessing.Manager()
+        self._goal_response = manager.Value('goal_response', (std_vertical_angle, std_horizontal_angle, 0))
+        self._current_angles = manager.Value('curent_angles', (std_vertical_angle, std_horizontal_angle))
 
         self.set_angle(vertical=std_vertical_angle, horizontal=std_horizontal_angle)
 
-        th = threading.Thread(target=self._trajectory_planner, args=())
-        th.start()
+        process = multiprocessing.Process(target=self._trajectory_planner, args=(), daemon=True)
+        process.start()
 
         rospy.Service(srv_name, NeckSetAngle, self._requester)
         rospy.loginfo("neck_driver INITED")
 
     def _trajectory_planner(self):
-        prev_goal_v, prev_goal_h = self._current_angles
+        prev_goal_v, prev_goal_h = self._current_angles.value
         start_time = rospy.get_time()
 
         while True:
-            cur_v, cur_h = self._current_angles
-            goal_v, goal_h, duration = self._goal_response
-            # print("goal", goal_h, goal_v)
+            cur_v, cur_h = self._current_angles.value
+            goal_v, goal_h, duration = self._goal_response.value
+            print("goal", goal_h, goal_v)
 
             if duration!=0:
                 if (prev_goal_v!=goal_v) or (prev_goal_h!=goal_h):
@@ -74,11 +75,11 @@ class NeckDriver():
     
     def _requester(self, request:NeckSetAngleRequest):
         response = NeckSetAngleResponse()
-        # print("request:",request.horizontal_angle, request.vertical_angle)
+        print("request:",request.horizontal_angle, request.vertical_angle)
         if self._constraint_v_from<=request.vertical_angle<=self._constraint_v_to:
             if self._constraint_h_from<=request.horizontal_angle<=self._constraint_h_to:
                 if request.duration>=0:
-                    self._goal_response = (request.vertical_angle, request.horizontal_angle, request.duration)
+                    self._goal_response.value = (request.vertical_angle, request.horizontal_angle, request.duration)
                     response.value = 0
                 else:
                     response.value = -3
@@ -88,7 +89,7 @@ class NeckDriver():
             response.value = -1
         
         if request.is_blocking:
-            while (self._current_angles!=self._goal_response[0:2]):
+            while (self._current_angles.value!=self._goal_response.value[0:2]):
                 rospy.sleep(0.05)
         return response
     
@@ -101,7 +102,7 @@ class NeckDriver():
         self._kit.servo[self._servo_1_channel].angle = 90-self.__vertical-self.__horizontal+self._servo_1_coef
         self._kit.servo[self._servo_2_channel].angle = 90+self.__vertical-self.__horizontal+self._servo_2_coef
 
-        self._current_angles = (self.__vertical, self.__horizontal)
+        self._current_angles.value = (self.__vertical, self.__horizontal)
 
 if __name__ == "__main__":
     rospy.init_node("neck_driver")
