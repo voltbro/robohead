@@ -45,7 +45,7 @@ class RoboheadController():
             module = self.robohead_controller_actions_match[name]
             action = importlib.import_module(name=module, package=None)
             action = importlib.reload(action)
-            action.run(self)
+            action.run(self, name)
         except BaseException as e:
             rospy.logerr(f"Can`t execute command: {name}. Error: {e}")
 
@@ -56,11 +56,11 @@ class RoboheadController():
     def _sensor_driver_battery_callback(self, msg:BatteryState):
         self.sensor_driver_bat_voltage = msg.voltage
         self.sensor_driver_bat_current = msg.current
-        if (self.sensor_driver_bat_voltage < self.low_voltage_threshold) or (self.is_allow_work==False):
+        if (self.sensor_driver_bat_voltage < self.low_voltage_threshold):
             self.is_allow_work = False
             self._execute_action('low_bat_action')
             rospy.logerr("Low voltage on battery!")
-        if (self.is_allow_work==False) and (self.sensor_driver_bat_voltage >= self.low_voltage_threshold+self.low_voltage_hysteresis):
+        elif (self.is_allow_work==False) and (self.sensor_driver_bat_voltage >= self.low_voltage_threshold+self.low_voltage_hysteresis):
             self._execute_action('wait_action')
             self.is_allow_work = True
     
@@ -99,7 +99,6 @@ class RoboheadController():
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
     
     def _cv_camera_image_raw_callback(self, msg:Image):
-        # self.cv_camera_image_raw = msg.data
         self.cv_camera_image_raw = msg
 
     def __init__(self):
@@ -203,10 +202,11 @@ class RoboheadController():
         cv_camera_camera_topic_name = rospy.get_param('~camera_topic_name')
         rospy.wait_for_message(cv_camera_camera_topic_name, Image)
         self.cv_camera_sub_image_raw = rospy.Subscriber(cv_camera_camera_topic_name, Image, self._cv_camera_image_raw_callback)
-        rospy.loginfo("turtlebot_controller: cv_camera connected")
+        rospy.loginfo("robohead_controller: cv_camera connected")
 
-        rospy.logwarn("turtlebot_controller: all packages connected")
-
+        rospy.logwarn("robohead_controller: all packages connected")
+    
+    def start_robohead_controller(self):
         self._execute_action("wait_action")
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
 
@@ -217,6 +217,7 @@ class TurtlebotController(RoboheadController):
 
     def __init__(self):
         super().__init__()
+
         # turtlebot connect
         self.turtlebot_odom_pose2d = Pose2D()
         turtlebot_topic_cmd_vel_name = rospy.get_param('~turtlebot_topic_cmd_vel_name')
@@ -224,7 +225,9 @@ class TurtlebotController(RoboheadController):
         rospy.wait_for_message(turtlebot_topic_odom_pose2d_name, Pose2D)
         self.turtlebot_pub_cmd_vel = rospy.Publisher(turtlebot_topic_cmd_vel_name, Twist, queue_size=1)
         self.turtlebot_sub_odom_pose2d = rospy.Subscriber(turtlebot_topic_odom_pose2d_name, Pose2D, self._turtlebot_odom_pose2d_callback)
-        rospy.loginfo("turtlebot_controller: turtlebot connected")
+        rospy.logwarn("turtlebot_controller: turtlebot connected")
+    
+    def start_turtlebot_controller(self):
         script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
         msg = PlayAudioRequest()
         msg.is_blocking = 1
@@ -232,8 +235,9 @@ class TurtlebotController(RoboheadController):
         msg.path_to_file = script_path + "turtlebot_connected.mp3"
         self.speakers_driver_srv_PlayAudio(msg)
 
-
 if __name__ == "__main__":
     rospy.init_node("turtlebot_controller")
-    TurtlebotController()
+    obj = TurtlebotController()
+    obj.start_robohead_controller()
+    obj.start_turtlebot_controller()
     rospy.spin()

@@ -4,7 +4,7 @@ import cv2
 from cv_bridge import CvBridge
 import numpy as np
 
-def run(robohead_controller:RoboheadController): # Обязательно наличие этой функции, именно она вызывается при голосовой команде
+def run(robohead_controller:RoboheadController, cmds:str): # Обязательно наличие этой функции, именно она вызывается при голосовой команде
     script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
 
     msg = EarsSetAngleRequest()
@@ -19,6 +19,32 @@ def run(robohead_controller:RoboheadController): # Обязательно нал
     msg.is_blocking = 1
     robohead_controller.neck_driver_srv_NeckSetAngle(msg)
 
+    cvBridge = CvBridge()
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    fontScale = 10
+    fontColor = (255,255,255)
+    thickness = 20
+    lineType = 5
+    
+    prev_img = robohead_controller.cv_camera_image_raw
+
+    for num in range(3,0,-1):
+        str_num = str(num)
+        timer_start = rospy.get_time()
+        while (rospy.get_time()-timer_start)<1:
+            if (prev_img!=robohead_controller.cv_camera_image_raw):
+                prev_img = robohead_controller.cv_camera_image_raw
+
+                cv_image = cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
+                cv_image = cv2.resize(cv_image, (1080, 1080))
+
+                bottomLeftCornerOfText = (1080//2-cv2.getTextSize(str_num, font, fontScale, thickness)[0][0]//2, 1080//2+cv2.getTextSize(str_num, font, fontScale, thickness)[0][1]//2)
+                cv2.putText(cv_image, str_num, tuple(bottomLeftCornerOfText), 
+                font, fontScale, fontColor, thickness, lineType)
+
+                robohead_controller.display_driver_pub_PlayMedia.publish(cvBridge.cv2_to_imgmsg(cv_image, encoding="bgr8")) 
+
     msg = PlayAudioRequest()
     msg.path_to_file = script_path + 'make_photo.mp3'
     msg.is_blocking = 0
@@ -31,5 +57,4 @@ def run(robohead_controller:RoboheadController): # Обязательно нал
     cv_image = cv2.resize(cv_image, (1080, 1080))
     robohead_controller.display_driver_pub_PlayMedia.publish(cvBridge.cv2_to_imgmsg(cv_image, encoding="bgr8")) 
 
-    rospy.sleep(2)
-    
+    rospy.sleep(4)

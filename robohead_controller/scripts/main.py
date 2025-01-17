@@ -41,7 +41,7 @@ class RoboheadController():
             module = self.robohead_controller_actions_match[name]
             action = importlib.import_module(name=module, package=None)
             action = importlib.reload(action)
-            action.run(self)
+            action.run(self, name)
         except BaseException as e:
             rospy.logerr(f"Can`t execute command: {name}. Error: {e}")
 
@@ -95,7 +95,6 @@ class RoboheadController():
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
     
     def _cv_camera_image_raw_callback(self, msg:Image):
-        # self.cv_camera_image_raw = msg.data
         self.cv_camera_image_raw = msg
 
     def __init__(self):
@@ -202,11 +201,13 @@ class RoboheadController():
         rospy.loginfo("robohead_controller: cv_camera connected")
 
         rospy.logwarn("robohead_controller: all packages connected")
-
+    
+    def start_robohead_controller(self):
         self._execute_action("wait_action")
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
 
 if __name__ == "__main__":
     rospy.init_node("robohead_controller")
-    RoboheadController()
+    obj = RoboheadController()
+    obj.start_robohead_controller()
     rospy.spin()

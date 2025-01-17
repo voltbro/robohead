@@ -1,8 +1,7 @@
 from robohead_controller_actions.main import *
 
-def run(robohead_controller:RoboheadController): # Обязательно наличие этой функции, именно она вызывается при голосовой команде
+def run(robohead_controller:RoboheadController, cmds:str): # Обязательно наличие этой функции, именно она вызывается при голосовой команде
     script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
-
     msg = PlayMediaRequest()
     msg.is_blocking = 0
     msg.is_cycled = 0
