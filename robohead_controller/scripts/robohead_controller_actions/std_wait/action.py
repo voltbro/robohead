@@ -16,7 +16,7 @@ def run(robohead_controller:RoboheadController, cmds:str): # Обязатель�
 
     msg = NeckSetAngleRequest()
     msg.horizontal_angle = 0
-    msg.vertical_angle = 0
+    msg.vertical_angle = 20
     msg.duration = 1
     msg.is_blocking = 1
     robohead_controller.neck_driver_srv_NeckSetAngle(msg)
