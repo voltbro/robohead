@@ -37,7 +37,7 @@ class NeckDriver():
         prev_goal_v, prev_goal_h = self._current_angles
         start_time = rospy.get_time()
 
-        while True:
+        while not rospy.is_shutdown():
             cur_v, cur_h = self._current_angles
             goal_v, goal_h, duration = self._goal_response
             # print("goal", goal_h, goal_v)
