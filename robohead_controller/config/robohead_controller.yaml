@@ -1,7 +1,7 @@
 low_voltage_threshold: 3.3
 low_voltage_hysteresis: 0.2
 
-camera_topic_name: "~cv_camera/image_raw"
+camera_topic_name: "~usb_cam/image_raw"
 
 robohead_controller_actions_match: { # сопоставление голововой команды из voice_recognizer_pocketsphinx/gram.txt и файла, запускаемого на исполнение
   "wait_action" : "robohead_controller_actions.std_wait.action",
@@ -12,5 +12,5 @@ robohead_controller_actions_match: { # сопоставление головов
   "покажи уши" : "robohead_controller_actions.std_ears.action",
   "сделай фото": "robohead_controller_actions.std_make_photo.action",
   "поздоровайся": "robohead_controller_actions.std_greeting.action",
-  "следи за шариком": "robohead_controller_actions.std_tracking_circle.action",
+  "следи за шариком": "robohead_controller_actions.std_ball_tracker.action",
 }
