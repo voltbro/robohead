@@ -7,7 +7,7 @@ from display_driver.srv import PlayMedia, PlayMediaRequest, PlayMediaResponse
 from geometry_msgs.msg import Pose2D
 from sensor_msgs.msg import Image
 
-# imports for cv_camera
+# imports for usb_cam
 from sensor_msgs.msg import Image
 
 # imports for ears_driver
@@ -94,8 +94,8 @@ class RoboheadController():
         self._execute_action('wait_action')
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
     
-    def _cv_camera_image_raw_callback(self, msg:Image):
-        self.cv_camera_image_raw = msg
+    def _usb_cam_image_raw_callback(self, msg:Image):
+        self.usb_cam_image_raw = msg
 
     def __init__(self):
 
@@ -193,12 +193,12 @@ class RoboheadController():
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(0) # Выключаем распознавание ключевых слов
         rospy.loginfo("robohead_controller: voice_recognizer_pocketsphinx connected")
 
-        # cv_camera connect
-        self.cv_camera_image_raw = [0]
-        cv_camera_camera_topic_name = rospy.get_param('~camera_topic_name')
-        rospy.wait_for_message(cv_camera_camera_topic_name, Image)
-        self.cv_camera_sub_image_raw = rospy.Subscriber(cv_camera_camera_topic_name, Image, self._cv_camera_image_raw_callback)
-        rospy.loginfo("robohead_controller: cv_camera connected")
+        # usb_cam connect
+        self.usb_cam_image_raw = [0]
+        usb_cam_camera_topic_name = rospy.get_param('~camera_topic_name')
+        rospy.wait_for_message(usb_cam_camera_topic_name, Image)
+        self.usb_cam_sub_image_raw = rospy.Subscriber(usb_cam_camera_topic_name, Image, self._usb_cam_image_raw_callback)
+        rospy.loginfo("robohead_controller: usb_cam connected")
 
         rospy.logwarn("robohead_controller: all packages connected")
     

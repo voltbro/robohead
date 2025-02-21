@@ -27,14 +27,14 @@ def run(robohead_controller:RoboheadController, cmds:str): # Обязатель�
     thickness = 20
     lineType = 5
     
-    prev_img = robohead_controller.cv_camera_image_raw
+    prev_img = robohead_controller.usb_cam_image_raw
 
     for num in range(3,0,-1):
         str_num = str(num)
         timer_start = rospy.get_time()
         while (rospy.get_time()-timer_start)<1:
-            if (prev_img!=robohead_controller.cv_camera_image_raw):
-                prev_img = robohead_controller.cv_camera_image_raw
+            if (prev_img!=robohead_controller.usb_cam_image_raw):
+                prev_img = robohead_controller.usb_cam_image_raw
 
                 cv_image = cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
                 cv_image = cv2.resize(cv_image, (1080, 1080))
@@ -53,7 +53,7 @@ def run(robohead_controller:RoboheadController, cmds:str): # Обязатель�
 
     rospy.sleep(0.5)
     cvBridge = CvBridge()
-    cv_image = cvBridge.imgmsg_to_cv2(robohead_controller.cv_camera_image_raw, "bgr8")
+    cv_image = cvBridge.imgmsg_to_cv2(robohead_controller.usb_cam_image_raw, "bgr8")
     cv_image = cv2.resize(cv_image, (1080, 1080))
     robohead_controller.display_driver_pub_PlayMedia.publish(cvBridge.cv2_to_imgmsg(cv_image, encoding="bgr8")) 
 

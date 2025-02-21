@@ -92,14 +92,14 @@ class BallTracker():
 
     def ball_tracker(self):
         cvBridge = CvBridge()
-        prev_img = self.robohead_controller.cv_camera_image_raw
+        prev_img = self.robohead_controller.usb_cam_image_raw
 
         cv_image = cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
         script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
 
         while self.is_run and not rospy.is_shutdown():
-            if (prev_img!=self.robohead_controller.cv_camera_image_raw):
-                prev_img = self.robohead_controller.cv_camera_image_raw
+            if (prev_img!=self.robohead_controller.usb_cam_image_raw):
+                prev_img = self.robohead_controller.usb_cam_image_raw
 
                 cv_image = cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
                 # cv2.imwrite(script_path+'1_orig.png', cv_image)
