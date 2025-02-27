@@ -1,3 +1,4 @@
+#https://magicwinnie.github.io/projects/hsv_selection/hsv_selection.html
 from robohead_controller_actions.main import *
 
 import cv2
@@ -6,9 +7,11 @@ import numpy as np
 import threading
 
 class BallTracker():
-    def __init__(self, robohead_controller:RoboheadController):
+    def __init__(self, robohead_controller:RoboheadController, script_path):
         self.is_run = True
         self.robohead_controller = robohead_controller
+        self.cvBridge = CvBridge()
+        self.script_path = script_path
 
         self.resized_camera_resolution = (270,270)
         self.original_camera_resolution = (640,480)
@@ -24,18 +27,20 @@ class BallTracker():
         self.neck_mover_constraint_horizontal = (-30,30)
 
         self.delta_k = 5/((self.resized_camera_resolution[0]//2)**2+(self.resized_camera_resolution[1]//2)**2)**0.5
+        # показывает, во сколько раз надо увеличить neck_mover_step_value, если шарик находится в самом краю изображения
 
         self.threshold_zone = 15
         self.hsv_filter = ((16,40),(180,255),(120,255)) # (hlow,hhigh), (slow,shigh), (vlow,vhigh)
-        print('init circle tracker')
-        print('let`s go')
-        # threadXY.join()
-        # threadNeck.join()
+        # hsv_filter изменяется при калибровке
 
-    def start(self, duration):
+        self.radius_cal = 30 # радиус, который срезается для извлечения калибровочного цвета
+        self.delta_cal = 10 # погрешность, которая прибавляется к радиусу срезаемого изображения (круг радиусом radius_cal), чтобы человек наверняка попал
+
+    def start(self, duration_tracking, duration_calibrate):
+        self.hsv_filter = self.calibrate(duration_calibrate, self.radius_cal, self.delta_cal)
         self.thread_ball_tracker.start()
         self.thread_neck_mover.start()
-        rospy.Timer(rospy.Duration(duration), callback=self.finish, oneshot=True)
+        rospy.Timer(rospy.Duration(duration_tracking), callback=self.finish, oneshot=True)
 
     def join(self):
         self.thread_ball_tracker.join()
@@ -43,7 +48,6 @@ class BallTracker():
 
     def finish(self, e):
         self.is_run = False
-        print('finish!')
 
     def neck_mover(self):
         msg = NeckSetAngleRequest()
@@ -68,7 +72,6 @@ class BallTracker():
             delta = (((center_x-x)**2+(center_y-y)**2)**0.5)*self.delta_k
             delta = min(max(delta, 1),3)
             step_d = int(step*delta)
-            # print(delta)
 
             if x<(center_x-threshold_zone):
                 if (cur_horizontal_angle+step_d)<=self.neck_mover_constraint_horizontal[1]:
@@ -87,37 +90,30 @@ class BallTracker():
                 if (cur_vertical_angle-step_d)>=self.neck_mover_constraint_vertical[0]:
                     cur_vertical_angle-=step_d
                     msg.vertical_angle = cur_vertical_angle
-            # print('cur: ',cur_vertical_angle, cur_horizontal_angle)
+
             self.robohead_controller.neck_driver_srv_NeckSetAngle(msg)
 
     def ball_tracker(self):
-        cvBridge = CvBridge()
         prev_img = self.robohead_controller.usb_cam_image_raw
-
-        cv_image = cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
-        script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
 
         while self.is_run and not rospy.is_shutdown():
             if (prev_img!=self.robohead_controller.usb_cam_image_raw):
                 prev_img = self.robohead_controller.usb_cam_image_raw
 
-                cv_image = cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
-                # cv2.imwrite(script_path+'1_orig.png', cv_image)
+                cv_image = self.cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
+                # cv2.imwrite(self.script_path+'1_orig.png', cv_image)
 
                 rect = min(self.original_camera_resolution)
                 cv_image = cv2.resize(cv_image[:rect,:rect], self.resized_camera_resolution)
                 cv_image = cv2.flip(cv_image, 1)
-                # cv2.imwrite(script_path+'2_resized.png', cv_image)
-                
+                # cv2.imwrite(self.script_path+'2_resized.png', cv_image)
 
                 blured_image = cv2.GaussianBlur(cv_image, (15, 15), 0)
-                # cv2.imwrite(script_path+'3_blure.png', blured_image)
+                # cv2.imwrite(self.script_path+'3_blure.png', blured_image)
 
                 hsv = cv2.cvtColor(blured_image, cv2.COLOR_BGR2HSV)
-                # cv2.imwrite(script_path+'4_hsv.png', hsv)
-                #fill in the values you obtained previously over here
-                #https://botforge.wordpress.com/2016/07/11/object-tracking-and-following-with-opencv-python/
-                #https://magicwinnie.github.io/projects/hsv_selection/hsv_selection.html
+                # cv2.imwrite(self.script_path+'4_hsv.png', hsv)
+
                 hlow = self.hsv_filter[0][0]
                 slow = self.hsv_filter[1][0]
                 vlow = self.hsv_filter[2][0]
@@ -127,10 +123,10 @@ class BallTracker():
                 HSVLOW  = np.array([hlow, slow, vlow])
                 HSVHIGH = np.array([hhigh, shigh, vhigh])
                 mask = cv2.inRange(hsv,HSVLOW, HSVHIGH)
-                # cv2.imwrite(script_path+'5_hsv_filtered.png', mask)
+                # cv2.imwrite(self.script_path+'5_hsv_filtered.png', mask)
 
                 edged = cv2.Canny(mask, 50, 150)
-                # cv2.imwrite(script_path+'6_edged.png', edged)
+                # cv2.imwrite(self.script_path+'6_edged.png', edged)
                 cnts = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[0]
                 
                 if len(cnts):
@@ -146,7 +142,75 @@ class BallTracker():
                 rd_angle = (self.resized_camera_resolution[0]//2+self.threshold_zone, self.resized_camera_resolution[1]//2+self.threshold_zone)
                 cv2.rectangle(cv_image, lu_angle, rd_angle, (0,0,255), 1)
                 cv_image = cv2.resize(cv_image, self.screen_resolution)
-                self.robohead_controller.display_driver_pub_PlayMedia.publish(cvBridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
+                self.robohead_controller.display_driver_pub_PlayMedia.publish(self.cvBridge.cv2_to_imgmsg(cv_image, encoding="bgr8"))
+
+    def calibrate(self, duration_calibrate, radius_cal, delta_cal):
+        prev_img = self.robohead_controller.usb_cam_image_raw
+
+        # центр resized изображения
+        center_x_resized = self.resized_camera_resolution[0]//2
+        center_y_resized = self.resized_camera_resolution[1]//2
+
+        # параметры для текста (обратный таймер с циферками)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        fontScale = 10
+        fontColor = (255,0,0)
+        thickness = 20
+        lineType = 5
+
+        timer_start = rospy.get_time()
+        while ((rospy.get_time()-timer_start)<duration_calibrate) and not rospy.is_shutdown():
+            if (prev_img!=self.robohead_controller.usb_cam_image_raw):
+                prev_img = self.robohead_controller.usb_cam_image_raw
+
+                str_num = str(duration_calibrate-int(rospy.get_time()-timer_start))
+                cv_image = self.cvBridge.imgmsg_to_cv2(prev_img, "bgr8")
+
+                rect = min(self.original_camera_resolution)
+                cv_image = cv2.resize(cv_image[:rect,:rect], self.resized_camera_resolution)
+                cv_image = cv2.flip(cv_image, 1)
+                rect = cv_image.copy()
+                
+                cv2.circle(cv_image, (center_x_resized, center_y_resized), radius_cal+delta_cal, (0, 255, 0), 2)
+                cv2.circle(cv_image, (center_x_resized, center_y_resized), radius_cal, (255, 0, 0), 1)
+
+                screen_img = cv2.resize(cv_image, self.screen_resolution)
+                bottomLeftCornerOfText = (self.screen_resolution[0]//2-cv2.getTextSize(str_num, font, fontScale, thickness)[0][0]//2, self.screen_resolution[1]//2-2*cv2.getTextSize(str_num, font, fontScale, thickness)[0][1]//2-radius_cal)
+                cv2.putText(screen_img, str_num, tuple(bottomLeftCornerOfText), 
+                font, fontScale, fontColor, thickness, lineType)
+                self.robohead_controller.display_driver_pub_PlayMedia.publish(self.cvBridge.cv2_to_imgmsg(screen_img, encoding="bgr8"))
+        
+        rect = rect[int(center_x_resized-radius_cal):int(center_x_resized+radius_cal), int(center_y_resized-radius_cal):int(center_y_resized+radius_cal)]
+        mask = np.zeros(rect.shape[:2], dtype="uint8")
+        cv2.circle(mask, (int(rect.shape[0]//2), int(rect.shape[1]//2)), radius_cal, 255, -1)
+        masked = cv2.bitwise_and(rect, rect, mask=mask)
+
+        hsv = self.get_hsv_range(masked)
+        # print("hsv_filter:", hsv)
+        return hsv
+    
+    def get_hsv_range(self, img):
+        # пробегаем по изображеняи img и выделяем диапазон цветов на нем
+
+        blured_image = cv2.GaussianBlur(img, (15, 15), 0)
+        hsv_image = cv2.cvtColor(blured_image, cv2.COLOR_BGR2HSV)
+        rows, cols, _ = hsv_image.shape
+
+        hsv_filter = [[180,0],[255,0],[255,0]] # (hlow,hhigh), (slow,shigh), (vlow,vhigh)
+        for row in range(rows):
+            for col in range(cols):
+                if (hsv_image[row][col][1]<=100) or (hsv_image[row][col][2]<=100):
+                    continue
+                hsv_filter[0][0] = min(hsv_image[row][col][0], hsv_filter[0][0])
+                hsv_filter[0][1] = max(hsv_image[row][col][0], hsv_filter[0][1])
+
+                hsv_filter[1][0] = min(hsv_image[row][col][1], hsv_filter[1][0])
+                hsv_filter[1][1] = max(hsv_image[row][col][1], hsv_filter[1][1])
+
+                hsv_filter[2][0] = min(hsv_image[row][col][2], hsv_filter[2][0])
+                hsv_filter[2][1] = max(hsv_image[row][col][2], hsv_filter[2][1])
+        return hsv_filter
+
 
 
 def run(robohead_controller:RoboheadController, cmds:str): # Обязательно наличие этой функции, именно она вызывается при голосовой команде
@@ -157,12 +221,18 @@ def run(robohead_controller:RoboheadController, cmds:str): # Обязатель�
     msg.right_ear_angle = -30
     robohead_controller.ears_driver_srv_EarsSetAngle(msg)
 
-    obj = BallTracker(robohead_controller)
-    obj.start(20)
+    msg = PlayAudioRequest()
+    msg.path_to_file = script_path + 'calibrate_voice.mp3'
+    msg.is_blocking = 0
+    msg.is_cycled = 0
+    robohead_controller.speakers_driver_srv_PlayAudio(msg)
+
+    obj = BallTracker(robohead_controller, script_path)
+    obj.start(30, 10)
     obj.join()
 
     msg = PlayAudioRequest()
-    msg.path_to_file = script_path + 'make_photo.mp3'
+    msg.path_to_file = script_path + 'finish_voice.mp3'
     msg.is_blocking = 1
     msg.is_cycled = 0
     robohead_controller.speakers_driver_srv_PlayAudio(msg)
