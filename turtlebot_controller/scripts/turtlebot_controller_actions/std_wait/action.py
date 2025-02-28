@@ -26,3 +26,6 @@ def run(turtlebot_controller:TurtlebotController, cmds:str): # Обязател�
     msg.is_blocking = 0
     msg.is_cycled = 0
     turtlebot_controller.speakers_driver_srv_PlayAudio(msg)
+
+    msg = Twist()
+    turtlebot_controller.turtlebot_pub_cmd_vel.publish(msg)
