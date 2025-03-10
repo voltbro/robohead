@@ -37,9 +37,6 @@ class BallTracker():
         self.mover_constraint_vertical = (-30,30)
         self.mover_constraint_horizontal = (-30,30)
 
-        self.delta_k = 3/((self.resized_camera_resolution[0]//2)**2+(self.resized_camera_resolution[1]//2)**2)**0.5
-        # показывает, во сколько раз надо увеличить mover_step_value, если шарик находится в самом краю изображения
-
     def start(self, duration_tracking, duration_calibrate):
         self.hsv_filter = self.calibrate(duration_calibrate)
         self.thread_ball_tracker.start()
@@ -58,12 +55,13 @@ class BallTracker():
         elif x>0: return 1
     def mover(self):
         msg_neck = NeckSetAngleRequest()
-        msg_neck.is_blocking = 1
+        msg_neck.is_blocking = 0
         msg_neck.duration = self.mover_neck_step_duration
         msg_neck.vertical_angle = 0
         
         mover_neck_step_value = self.mover_neck_step_value
         cur_vertical_angle = 0
+        cur_horizontal_angle = 0
 
         msg_cmd_vel = Twist()
 
@@ -77,6 +75,7 @@ class BallTracker():
         prev_ball_xyr = self.ball_xyr
 
         timer_start = rospy.get_time()
+        is_rotating = False
 
         while self.is_run and not rospy.is_shutdown():
             x, y, r = self.ball_xyr
@@ -96,19 +95,37 @@ class BallTracker():
             delta_x = x - center_x
             delta_y = center_y - y
 
-            if abs(delta_r) > tracker_distance_radius_delta:
-                velocity = min(max(0.1*abs(delta_r)/(resized_camera_resolution[0]/4), 0.05), 0.2)
-                msg_cmd_vel.linear.x = velocity*self.sign(delta_r)
-            else:
-                msg_cmd_vel.linear.x = 0
+            # слежение за шариком по расстоянию
+            # if abs(delta_r) > tracker_distance_radius_delta:
+            #     velocity = min(max(0.1*abs(delta_r)/(resized_camera_resolution[0]/4), 0.05), 0.2)
+            #     msg_cmd_vel.linear.x = velocity*self.sign(delta_r)
+            # else:
+            #     msg_cmd_vel.linear.x = 0
 
-            if (delta_x**2+delta_y**2) > (tracker_zone_radius)**2:
-                if abs(cur_vertical_angle+mover_neck_step_value*self.sign(delta_y))<=30:
+
+            if (delta_x**2+delta_y**2) > tracker_zone_radius**2:
+                if (abs(cur_vertical_angle+mover_neck_step_value*self.sign(delta_y))<=30):
                     cur_vertical_angle+=mover_neck_step_value*self.sign(delta_y)
                     msg_neck.vertical_angle = int(cur_vertical_angle)
 
-                velocity = min(max(0.2*abs(delta_x)/(resized_camera_resolution[0]/4), 0.1), 0.4)
-                msg_cmd_vel.angular.z = velocity*self.sign(delta_x)
+                if not is_rotating and (abs(delta_x) <= tracker_zone_radius):
+                    msg_cmd_vel.angular.z = 0
+                elif is_rotating:
+                    velocity = min(max(0.2*abs(delta_x)/(resized_camera_resolution[0]/4), 0.1), 0.4)
+                    msg_cmd_vel.angular.z = velocity*self.sign(delta_x)
+
+                    if (abs(cur_horizontal_angle+mover_neck_step_value*self.sign(delta_x))<=30):
+                        cur_horizontal_angle+=mover_neck_step_value*self.sign(delta_x)
+                        msg_neck.horizontal_angle = int(cur_horizontal_angle)
+                    
+                    if abs(cur_horizontal_angle)<=5:
+                        is_rotating = False
+                else:
+                    if (abs(cur_horizontal_angle-mover_neck_step_value*self.sign(delta_x))<=30):
+                        cur_horizontal_angle-=mover_neck_step_value*self.sign(delta_x)
+                        msg_neck.horizontal_angle = int(cur_horizontal_angle)
+                    else:
+                        is_rotating = True
             else:
                 msg_cmd_vel.angular.z = 0
 
@@ -160,8 +177,11 @@ class BallTracker():
 
                 mask = cv2.inRange(hsv,HSVLOW, HSVHIGH)
                 # cv2.imwrite(self.script_path+'5_hsv_filtered.png', mask)
+                kernel = np.ones((3, 3), np.uint8)
+                dilation = cv2.dilate(mask, kernel, iterations=1) 
+                # cv2.imwrite(self.script_path+'51_dilated.png', dilation)
 
-                edged = cv2.Canny(mask, 50, 150)
+                edged = cv2.Canny(dilation, 50, 150)
                 # cv2.imwrite(self.script_path+'6_edged.png', edged)
                 cnts = cv2.findContours(edged, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[0]
                 
@@ -276,7 +296,7 @@ def run(turtlebot_controller:TurtlebotController, cmds:str): # Обязател�
     turtlebot_controller.speakers_driver_srv_PlayAudio(msg)
 
     obj = BallTracker(turtlebot_controller, script_path)
-    obj.start(30, 10)
+    obj.start(35, 7)
     obj.join()
 
     msg = PlayAudioRequest()
