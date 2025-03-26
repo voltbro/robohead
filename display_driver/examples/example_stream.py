@@ -3,7 +3,7 @@
 #   Пример работы с пакетом display_driver                  #
 #   Воспроизведение потокового медиа на ЯП python           #
 #   (для работы примера дополнительно запустите пакет:      #
-#   cv_camera, команда: rosrun cv_camera cv_camera_node     #       
+#   usb_cam, команда: rosrun usb_cam usb_cam_node     #       
 #                                                           #
 # ========================================================= #
 
@@ -29,7 +29,7 @@ def img_proc(image_msg:Image):
 rospy.init_node('example_stream_node') # Инициализируем ROS-ноду
 rospy.wait_for_service("/display_driver/PlayMedia") # Дожидаемся инициализации сервиса
 
-image_sub = rospy.Subscriber("/cv_camera/image_raw", Image, callback=img_proc)      # Подписчик на топик потока с камеры
+image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, callback=img_proc)      # Подписчик на топик потока с камеры
 image_pub = rospy.Publisher("/display_driver/PlayMedia", Image, queue_size=1)    # Паблишер для отправки изображений в топик PlayMedia
 
 # Создаем объект сервиса работы с дисплеем
