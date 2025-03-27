@@ -46,46 +46,45 @@ class RoboheadController():
             rospy.logerr(f"Can`t execute command: {name}. Error: {e}")
 
     def _display_driver_touchsreen_callback(self, msg:Pose2D):
-        pass
-        # print(f"touchsreen callback! xy: {msg.x}, {msg.y}")
+        self.display_driver_touchscreen_xy = (msg.x, msg.y)
 
     def _sensor_driver_battery_callback(self, msg:BatteryState):
         self.sensor_driver_bat_voltage = msg.voltage
         self.sensor_driver_bat_current = msg.current
-        if (self.sensor_driver_bat_voltage < self.low_voltage_threshold):
-            self.is_allow_work = False
+        if (self.sensor_driver_bat_voltage < self.robohead_controller_low_voltage_threshold):
+            self.robohead_controller_is_allow_work = False
             self._execute_action('low_bat_action')
             rospy.logerr("Low voltage on battery!")
-        elif (self.is_allow_work==False) and (self.sensor_driver_bat_voltage >= self.low_voltage_threshold+self.low_voltage_hysteresis):
+        elif (self.robohead_controller_is_allow_work==False) and (self.sensor_driver_bat_voltage >= self.robohead_controller_low_voltage_threshold+self.robohead_controller_low_voltage_hysteresis):
             self._execute_action('wait_action')
-            self.is_allow_work = True
+            self.robohead_controller_is_allow_work = True
     
     def _respeaker_driver_audio_main_callback(self, msg:AudioData):
-        pass
+        self.respeaker_driver_msg_audio_main = msg
     def _respeaker_driver_audio_channel_0_callback(self, msg:AudioData):
-        pass
+        self.respeaker_driver_msg_channel_0 = msg
     def _respeaker_driver_audio_channel_1_callback(self, msg:AudioData):
-        pass
+        self.respeaker_driver_msg_channel_1 = msg
     def _respeaker_driver_audio_channel_2_callback(self, msg:AudioData):
-        pass
+        self.respeaker_driver_msg_channel_2 = msg
     def _respeaker_driver_audio_channel_3_callback(self, msg:AudioData):
-        pass
+        self.respeaker_driver_msg_channel_3 = msg
     def _respeaker_driver_audio_channel_4_callback(self, msg:AudioData):
-        pass
+        self.respeaker_driver_msg_channel_4 = msg
     def _respeaker_driver_audio_channel_5_callback(self, msg:AudioData):
-        pass
+        self.respeaker_driver_msg_channel_5 = msg
     def _respeaker_driver_doa_angle_callback(self, msg:Int16):
         self.respeaker_driver_doa_angle = msg.data
 
     def _voice_recognizer_pocketsphinx_kws_callback(self, msg:String):
-        if self.is_allow_work == False:
+        if self.robohead_controller_is_allow_work == False:
             return 
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(0)
         self._execute_action(msg.data)
         self.voice_recognizer_pocketsphinx_cmds_srv_IsWork(1)
         
     def _voice_recognizer_pocketsphinx_cmds_callback(self, msg:String):
-        if self.is_allow_work == False:
+        if self.robohead_controller_is_allow_work == False:
             return 
         self.voice_recognizer_pocketsphinx_cmds_srv_IsWork(0)
         if msg.data != '':
@@ -99,12 +98,13 @@ class RoboheadController():
 
     def __init__(self):
 
-        self.low_voltage_threshold = rospy.get_param('~low_voltage_threshold')
-        self.low_voltage_hysteresis = rospy.get_param('~low_voltage_hysteresis')
-        self.is_allow_work = True
+        self.robohead_controller_low_voltage_threshold = rospy.get_param('~low_voltage_threshold')
+        self.robohead_controller_low_voltage_hysteresis = rospy.get_param('~low_voltage_hysteresis')
+        self.robohead_controller_is_allow_work = True
         self.robohead_controller_actions_match = rospy.get_param('~robohead_controller_actions_match')
 
         # display_driver connect
+        self.display_driver_touchscreen_xy = (0,0)
         display_driver_service_PlayMedia_name = "~display_driver/" + rospy.get_param('~display_driver/service_PlayMedia_name')[1:]
         display_driver_topic_PlayMedia_name = "~display_driver/" + rospy.get_param('~display_driver/topic_PlayMedia_name')[1:]
         display_driver_topic_touchscreen_name = "~display_driver/" + rospy.get_param('~display_driver/topic_touchscreen_name')[1:]
@@ -145,7 +145,7 @@ class RoboheadController():
 
         # sensor_driver connect
         self.sensor_driver_bat_voltage = 4.2
-        self.sensor_driver_bat_current = -2
+        self.sensor_driver_bat_current = -2.1
         sensor_driver_topic_name = "~sensor_driver/" + rospy.get_param('~sensor_driver/topic_name')[1:]
         rospy.wait_for_message(sensor_driver_topic_name, BatteryState)
         self.sensor_driver_sub_battery = rospy.Subscriber(sensor_driver_topic_name, BatteryState, self._sensor_driver_battery_callback)
@@ -153,6 +153,13 @@ class RoboheadController():
 
         # respeaker_driver connect
         self.respeaker_driver_doa_angle = 0
+        self.respeaker_driver_msg_audio_main = AudioData()
+        self.respeaker_driver_msg_channel_0 = AudioData()
+        self.respeaker_driver_msg_channel_1 = AudioData()
+        self.respeaker_driver_msg_channel_2 = AudioData()
+        self.respeaker_driver_msg_channel_3 = AudioData()
+        self.respeaker_driver_msg_channel_4 = AudioData()
+        self.respeaker_driver_msg_channel_5 = AudioData()
         respeaker_driver_topic_audio_main_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/topic_audio_main_name')[1:]
         respeaker_driver_topic_audio_channel_0_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/topic_audio_channel_0_name')[1:]
         respeaker_driver_topic_audio_channel_1_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/topic_audio_channel_1_name')[1:]
@@ -170,11 +177,11 @@ class RoboheadController():
         rospy.wait_for_message(respeaker_driver_topic_audio_channel_5_name, AudioData)
         self.respeaker_driver_sub_audio_main = rospy.Subscriber(respeaker_driver_topic_audio_main_name, AudioData, self._respeaker_driver_audio_main_callback)
         self.respeaker_driver_sub_audio_channel_0 = rospy.Subscriber(respeaker_driver_topic_audio_channel_0_name, AudioData, self._respeaker_driver_audio_channel_0_callback)
-        self.respeaker_driver_sub_audio_channel_0 = rospy.Subscriber(respeaker_driver_topic_audio_channel_1_name, AudioData, self._respeaker_driver_audio_channel_1_callback)
-        self.respeaker_driver_sub_audio_channel_0 = rospy.Subscriber(respeaker_driver_topic_audio_channel_2_name, AudioData, self._respeaker_driver_audio_channel_2_callback)
-        self.respeaker_driver_sub_audio_channel_0 = rospy.Subscriber(respeaker_driver_topic_audio_channel_3_name, AudioData, self._respeaker_driver_audio_channel_3_callback)
-        self.respeaker_driver_sub_audio_channel_0 = rospy.Subscriber(respeaker_driver_topic_audio_channel_4_name, AudioData, self._respeaker_driver_audio_channel_4_callback)
-        self.respeaker_driver_sub_audio_channel_0 = rospy.Subscriber(respeaker_driver_topic_audio_channel_5_name, AudioData, self._respeaker_driver_audio_channel_5_callback)
+        self.respeaker_driver_sub_audio_channel_1 = rospy.Subscriber(respeaker_driver_topic_audio_channel_1_name, AudioData, self._respeaker_driver_audio_channel_1_callback)
+        self.respeaker_driver_sub_audio_channel_2 = rospy.Subscriber(respeaker_driver_topic_audio_channel_2_name, AudioData, self._respeaker_driver_audio_channel_2_callback)
+        self.respeaker_driver_sub_audio_channel_3 = rospy.Subscriber(respeaker_driver_topic_audio_channel_3_name, AudioData, self._respeaker_driver_audio_channel_3_callback)
+        self.respeaker_driver_sub_audio_channel_4 = rospy.Subscriber(respeaker_driver_topic_audio_channel_4_name, AudioData, self._respeaker_driver_audio_channel_4_callback)
+        self.respeaker_driver_sub_audio_channel_5 = rospy.Subscriber(respeaker_driver_topic_audio_channel_5_name, AudioData, self._respeaker_driver_audio_channel_5_callback)
         self.respeaker_driver_sub_doa_angle = rospy.Subscriber(respeaker_driver_topic_doa_angle_name, Int16, self._respeaker_driver_doa_angle_callback)
         rospy.loginfo("robohead_controller: respeaker_driver connected")
 
@@ -194,7 +201,7 @@ class RoboheadController():
         rospy.loginfo("robohead_controller: voice_recognizer_pocketsphinx connected")
 
         # usb_cam connect
-        self.usb_cam_image_raw = [0]
+        self.usb_cam_image_raw = Image()
         usb_cam_camera_topic_name = rospy.get_param('~camera_topic_name')
         rospy.wait_for_message(usb_cam_camera_topic_name, Image)
         self.usb_cam_sub_image_raw = rospy.Subscriber(usb_cam_camera_topic_name, Image, self._usb_cam_image_raw_callback)
