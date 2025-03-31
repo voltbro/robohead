@@ -9,6 +9,8 @@ servo_2_channel: 8
 servo_1_coef: 0
 servo_2_coef: 0
 
+i2c_address: 0x40
+
 constraints:
   v_from: -30
   v_to: 30

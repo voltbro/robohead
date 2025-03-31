@@ -4,11 +4,12 @@ from ears_driver.srv import EarsSetAngle, EarsSetAngleResponse, EarsSetAngleRequ
 
 class EarsDriverPy():
     def __init__(self)->None:
-        self._kit = ServoKit(channels=16)
-
         srv_name = rospy.get_param("~service_name", "~EarsSetAngle")
         std_L_angle = rospy.get_param("~std_L_angle", 0)
         std_R_angle = rospy.get_param("~std_R_angle", 0)
+
+        i2c_address = rospy.get_param("~i2c_address", 0x40)
+        self._kit = ServoKit(channels=16, address=i2c_address)
 
         self._servoL_chnl = rospy.get_param("~servo_L_channel", 11)
         self._servoR_chnl = rospy.get_param("~servo_R_channel", 10)

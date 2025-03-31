@@ -5,11 +5,14 @@ import threading
 
 class NeckDriver():
     def __init__(self)->None:
-        self._kit = ServoKit(channels=16)
+        
 
         srv_name = rospy.get_param("~service_name", "~NeckSetAngle")
         std_vertical_angle = rospy.get_param("~std_vertical_angle", 0)
         std_horizontal_angle = rospy.get_param("~std_horizontal_angle", 0)
+
+        i2c_address = rospy.get_param("~i2c_address", 0x40)
+        self._kit = ServoKit(channels=16, address=i2c_address)
 
         self._servo_1_channel = rospy.get_param("~servo_1_channel", 9)
         self._servo_2_channel = rospy.get_param("~servo_2_channel", 8)
