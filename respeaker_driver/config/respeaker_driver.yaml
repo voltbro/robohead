@@ -1,24 +1,24 @@
 usb:
-  vendor_id: 0x2886
-  product_id: 0x0018
+  vendor_id: 0x2886 # vendor_id производителя usb-устройства
+  product_id: 0x0018 # product_id usb-устройства
   reset_time_sleep: 10 # время ожидания для переинициализации usb устройства после reset 
-  timeout: 8000
+  timeout: 8000 # таймаут при передаче данных с/на ReSpeaker 
 
 audio:
-  rate: 16000
+  rate: 16000 # частота дискретизации сигнала с микрофона
   chunk: 1024 # количество frame в буффере, то же самое что: period, framebuffer и т.д.
   # используется формат pyaudio.paInt16
 
 led:
-  brightness: 10 # 0..31
-  A_color:
-    - 255
-    - 0
-    - 0
-  B_color:
-    - 255
-    - 255
-    - 255
+  brightness: 10 # 0..31 яркость светодиодной панели
+  A_color: # цвет светодиода, указывающего направление свечения
+    - 255 # R-red
+    - 0 # G-green
+    - 0 # B-blue
+  B_color: # цвето светодиодов заливки
+    - 255 # R-red
+    - 255 # G-green
+    - 255 # B-blue
 
 ros:
   topic_audio_main_name: "~audio/main"

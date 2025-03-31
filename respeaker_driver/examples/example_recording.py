@@ -1,82 +1,70 @@
-from audio_common_msgs.msg import AudioData
+# ========================================================= #
+#                                                           #
+#   Пример работы с пакетом speakers_driver на ЯП python    #
+#                                                           #
+# ========================================================= #
 
-import rospy
-import os
-import sys
-import pyaudio
-from contextlib import contextmanager
-import wave
+from audio_common_msgs.msg import AudioData # Подключаем тип сообщения для топиков с аудио-сигналом
 
-@contextmanager
-def ignore_stderr(enable=True):
-    if enable:
-        devnull = None
-        try:
-            devnull = os.open(os.devnull, os.O_WRONLY)
-            stderr = os.dup(2)
-            sys.stderr.flush()
-            os.dup2(devnull, 2)
-            try:
-                yield
-            finally:
-                os.dup2(stderr, 2)
-                os.close(stderr)
-        finally:
-            if devnull is not None:
-                os.close(devnull)
-    else:
-        yield
-    
+import rospy # библиотека для работы с ROS
+import os # библиотека для работы с ОС
+import pyaudio # библиотека для работы со звуком (нужна, чтоб получить значение формата аудио (PaInt16 в байтах = 2))
+import wave # библиотека для работы с .wav файлами
+
+# Класс "записывателя" (рекордера)
 class Recorder():
-    def __init__(self, filename):
-        self.filename = "/home/pi/robohead_ws/src/robohead/respeaker_driver/examples/" +filename
-        self.CHUNK = 1024
-        self.RATE = 16000
-        self.RECORD_SECONDS = 5
+    def __init__(self, filename, duration):
+        script_path = os.path.dirname(os.path.abspath(__file__)) + '/' # Получаем путь текущей директории
+        self.filename = filename
+        self.path_to_file = script_path+filename # формируем абсолютный путь до файла, в который будем сохранять аудио
+        self.CHUNK = 1024 # количество frame в буффере, то же самое что: period, framebuffer и т.д. Должно совпадать со значением конфиг-файла
+        self.RATE = 16000 # Частота дискретизации микрофона. Должно совпадать со значением конфиг-файла
+        self.RECORD_SECONDS = duration # Длительность записи
+        self.FORMAT = pyaudio.get_sample_size(pyaudio.paInt16) # Получаем формат PaInt16 в байтах для .wav файла
 
-        with ignore_stderr():
-            p = pyaudio.PyAudio()
-        self.format = p.get_sample_size(pyaudio.paInt16)
-        p.terminate()
-
-        self.frames = []
-        self.i = 0
-        self.flag = 0
+        self.frames = [] # Массив, куда складываются все аудио-фреймы
+        self.count_of_frames = 0 # Количество записанных фреймов
+        self.is_end = 0
 
     def callback(self, msg:AudioData):
-        # print(self.i, (self.RATE / self.CHUNK * self.RECORD_SECONDS))
-        self.frames.append(msg.data)
-        self.i += 1
-        if (self.i > int(self.RATE / self.CHUNK * self.RECORD_SECONDS)) and self.flag==0:
-            self.flag = 1
-            wf = wave.open(self.filename, 'wb')
-            wf.setnchannels(1)
-            wf.setsampwidth(self.format)
-            wf.setframerate(self.RATE)
-            wf.writeframes(b''.join(self.frames))
-            wf.close()
-            print("recorded!")
-            
-            exit(0)
+        if self.is_end: # Если запись завершена, то игнорируем все поступающие сообщения из топика
+            return
 
+        print(self.filename, ":", self.count_of_frames, '/', int(self.RATE / self.CHUNK * self.RECORD_SECONDS)) # печатает сколько записано frame`ов
 
-r0 = Recorder("rec0.wav") # channel 0 - обработанный звук самим respeaker
-r1 = Recorder("rec1.wav") # channel 1 - raw звук с микрофона 1
-r2 = Recorder("rec2.wav") # channel 2 - raw звук с микрофона 2
-r3 = Recorder("rec3.wav") # channel 3 - raw звук с микрофона 3
-r4 = Recorder("rec4.wav") # channel 4 - raw звук с микрофона 4
-r5 = Recorder("rec5.wav") # channel 5 - звук, воспроизводимый на динамиках
+        self.frames.append(msg.data) # Добавляем в массив пришедший аудио-фрейм
+        self.count_of_frames += 1 # увеличиваем счетчик фреймов в массиве
 
-r = Recorder("rec.wav") # channel main (0)
-rospy.init_node("example_recording")
-print("start recording!")
-rospy.Subscriber("/respeaker_driver/audio/channel_0", AudioData, r0.callback)
-rospy.Subscriber("/respeaker_driver/audio/channel_1", AudioData, r1.callback)
-rospy.Subscriber("/respeaker_driver/audio/channel_2", AudioData, r2.callback)
-rospy.Subscriber("/respeaker_driver/audio/channel_3", AudioData, r3.callback)
-rospy.Subscriber("/respeaker_driver/audio/channel_4", AudioData, r4.callback)
-rospy.Subscriber("/respeaker_driver/audio/channel_5", AudioData, r5.callback)
-rospy.Subscriber("/respeaker_driver/audio/main", AudioData, r.callback)
-rospy.Timer(rospy.Duration(6), callback=lambda e: rospy.signal_shutdown("end record"))
-rospy.spin()
+        if (self.count_of_frames > int(self.RATE / self.CHUNK * self.RECORD_SECONDS)): # Если записано нужное количество frame`ов (вычисляется на основе необходимой длительности записи)
+            # То записываем self.frames в файл .wav:
 
+            self.is_end = 1 # Устанавливаем значения флага 1, сигнализируя, что запись завершена
+            wf = wave.open(self.path_to_file, 'wb') # Открываем файл self.path_to_file в режиме записи байтов 'wb'
+            wf.setnchannels(1) # Устанавливаем количество каналов 1 - монозвук
+            wf.setsampwidth(self.FORMAT) # Устанавливаем формат аудио-фреймов (в байтах PaInt16)
+            wf.setframerate(self.RATE) # Устанавливаем частоту дискретизации
+            wf.writeframes(b''.join(self.frames)) # Записываем массив self.frames в файл
+            wf.close() # Сохраням и закрываем .wav файл
+            print(self.filename, ": Recorded to:", self.path_to_file)
+
+duration = 5 # Длительность записи аудио
+rec_0 = Recorder("rec_0.wav", duration) # channel 0 - обработанный звук самим respeaker
+rec_1 = Recorder("rec_1.wav", duration) # channel 1 - raw звук с микрофона 1
+rec_2 = Recorder("rec_2.wav", duration) # channel 2 - raw звук с микрофона 2
+rec_3 = Recorder("rec_3.wav", duration) # channel 3 - raw звук с микрофона 3
+rec_4 = Recorder("rec_4.wav", duration) # channel 4 - raw звук с микрофона 4
+rec_5 = Recorder("rec_5.wav", duration) # channel 5 - звук, воспроизводимый на динамиках
+rec_main = Recorder("rec_main.wav", duration) # main_channel - звук с главного канала (по умолчанию дублирует значения с канала 0)
+
+rospy.init_node("example_recording") # Инициализируем ROS-ноду
+print("Start recording!")
+rospy.Subscriber("/respeaker_driver/audio/channel_0", AudioData, rec_0.callback) # Подписываемся на топик
+rospy.Subscriber("/respeaker_driver/audio/channel_1", AudioData, rec_1.callback) # Подписываемся на топик
+rospy.Subscriber("/respeaker_driver/audio/channel_2", AudioData, rec_2.callback) # Подписываемся на топик
+rospy.Subscriber("/respeaker_driver/audio/channel_3", AudioData, rec_3.callback) # Подписываемся на топик
+rospy.Subscriber("/respeaker_driver/audio/channel_4", AudioData, rec_4.callback) # Подписываемся на топик
+rospy.Subscriber("/respeaker_driver/audio/channel_5", AudioData, rec_5.callback) # Подписываемся на топик
+rospy.Subscriber("/respeaker_driver/audio/main", AudioData, rec_main.callback) # Подписываемся на топик
+
+rospy.Timer(rospy.Duration(duration+1), callback=lambda e: rospy.signal_shutdown("end record")) # Таймер для завершения ROS.
+rospy.spin() # Зацикливаем ROS, для обновления топиков
