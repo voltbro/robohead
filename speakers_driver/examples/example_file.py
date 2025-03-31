@@ -1,3 +1,9 @@
+# ========================================================= #
+#                                                           #
+#   Пример работы с пакетом speakers_driver на ЯП python    #
+#                                                           #
+# ========================================================= #
+
 import rospy # Библиотека для работы с ROS
 import os    # Библиотека для работы с ОС
 
@@ -20,26 +26,41 @@ service_SetVolume = rospy.ServiceProxy('/speakers_driver/SetVolume', SetVolume)
 service_GetVolume = rospy.ServiceProxy('/speakers_driver/GetVolume', GetVolume)
 
 script_path = os.path.dirname(os.path.abspath(__file__)) + '/' # Получаем путь текущей директории
-print(script_path) # Выводим путь до текущей директории
+print("Script path:", script_path) # Выводим путь до текущей директории
 
-request = PlayAudioRequest()
+request = SetVolumeRequest() # сообщение для вызова сервиса SetVolume
+request.volume = 30 # Устанавливаем громкость 30%
+result:SetVolumeResponse = service_SetVolume(request) # Вызываем сервис SetVolume
+print("call SetVolume result:", result.value) # печатаем результат вызова сервиса
+
+request = GetVolumeRequest() # сообщение для вызова сервиса GetVolume
+result:GetVolumeResponse = service_GetVolume(request) # Вызываем сервис GetVolume
+print("call GetVolume result (current volume):", result.value) # Печатаем результат вызова сервиса (текущую громкость)
+
+request = PlayAudioRequest() # сообщение для вызова сервиса PlayAudio
 request.path_to_file = script_path+"file.mp3" # Абсолютный путь до файла file.mp3 в текущей директории
 request.is_blocking = 1 # Вызов блокирующий (вызов будет завершен, после воспроизведения всего аудио)
 request.is_cycled = 0 # Зацикливания воспроизведения нет 
-result = service_PlayAudio(request) # Вызов сервиса
-print(result) # Выводим результат вызова сервиса
+result:PlayAudioResponse = service_PlayAudio(request) # Вызов сервиса
+print("call PlayAudio result:", result.value) # Выводим результат вызова сервиса
 
-request = SetVolumeRequest()
-request.volume = 50
-result = service_SetVolume(request)
-print(result)
-
-request = GetVolumeRequest()
-result = service_GetVolume(request)
-print(result)
+request = SetVolumeRequest() # сообщение для вызова сервиса SetVolume
+request.volume = 50 # Устанавливаем громкость 50%
+result:SetVolumeResponse = service_SetVolume(request) # Вызываем сервис SetVolume
+print("call SetVolume result:", result.value) # печатаем результат вызова сервиса
 
 request = PlayAudioRequest()
 request.path_to_file = script_path+"file.mp3" # Абсолютный путь до файла file.mp3 в текущей директории
-request.is_blocking = 1 # Вызов блокирующий (вызов будет завершен, после воспроизведения всего аудио)
-request.is_cycled = 0 # Зацикливания воспроизведения нет 
-result = service_PlayAudio(request) # Вызов сервиса
+request.is_blocking = 0 # Вызов НЕблокирующий (вызов функции вернет результат ДО завершения воспроизведения)
+request.is_cycled = 1 # Зацикливание воспроизведения включено
+result:PlayAudioResponse = service_PlayAudio(request) # Вызов сервиса
+print("call PlayAudio result:", result.value) # Выводим результат вызова сервиса
+
+rospy.sleep(3) # "Засыпаем" на 2 секунды, пока воспроизводится аудио
+
+request = PlayAudioRequest()
+request.path_to_file = "" # Пустое поле для принудительной остановки текущего воспроиведения
+request.is_blocking = 1 # Вызов блокирующий
+request.is_cycled = 0 # Зацикливание воспроизведения включено
+result:PlayAudioResponse = service_PlayAudio(request) # Вызов сервиса
+print("call PlayAudio result:", result.value) # Выводим результат вызова сервиса

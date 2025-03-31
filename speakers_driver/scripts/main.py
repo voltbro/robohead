@@ -1,19 +1,3 @@
-# https://www.alsa-project.org/wiki/Setting_the_default_device
-# https://micro-pi.ru/%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-mpd-mpc-raspberry/
-# sudo apt install mpd
-# sudo apt install mpc - опционально - клиент для терминала
-# pip install python-mpd2
-
-# # client.connect("localhost", 6600)  # connect to localhost:6600
-# print(client.mpd_version)          # print the MPD version
-# print(client.find("any", "house")) # print result of the command "find any house"
-# client.clear()
-# # client.add("test.mp3")
-# # client.add("http://chanson.hostingradio.ru:8041/chanson256.mp3")
-# # client.add("file:///home/pi/robohead_ws/src/robohead/head_controller/scripts/actions/std_lay/lay.mp3")
-# client.add("/home/pi/robohead_ws/src/robohead/head_controller/scripts/actions/std_lay/lay.mp3")
-# client.play()
-
 import rospy
 import mpd
 import os
@@ -33,7 +17,7 @@ class SpeakersDriver():
         mpd_port = rospy.get_param("~mpd_port", 6600)
 
         self._update_hz = rospy.get_param("~update_hz", 10)
-        default_volume = rospy.get_param("~default_volume", 30)
+        default_volume = rospy.get_param("~default_volume", 50)
 
         rospy.Service(service_PlayAudio_name, PlayAudio, self._requester_PlayAudio)
         rospy.Service(service_GetVolume_name, GetVolume, self._requester_GetVolume)
