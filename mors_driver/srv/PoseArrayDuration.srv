@@ -1,4 +1,0 @@
-geometry_msgs/PoseArray data
-float32 duration
----
-int16 result

@@ -1,4 +1,0 @@
-trajectory_msgs/JointTrajectoryPoint data
-float32 duration
----
-int16 result

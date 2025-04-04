@@ -1,4 +1,4 @@
-low_voltage_threshold: 3.3
+low_voltage_threshold: 3.0
 low_voltage_hysteresis: 0.2
 
 camera_topic_name: "~usb_cam/image_raw"
