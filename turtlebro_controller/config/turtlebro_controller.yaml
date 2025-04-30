@@ -1,0 +1,23 @@
+low_voltage_threshold: 3.3
+low_voltage_hysteresis: 0.2
+
+camera_topic_name: "~usb_cam/image_raw"
+
+robohead_controller_actions_match: { # сопоставление голововой команды из voice_recognizer_pocketsphinx/gram.txt и файла, запускаемого на исполнение
+  "wait_action" : "turtlebro_controller_actions.std_wait.action",
+  "low_bat_action" : "turtlebro_controller_actions.std_low_bat.action",
+  "слушайробот" : "turtlebro_controller_actions.std_attention.action",
+  "покажи левое ухо": "turtlebro_controller_actions.std_left_ear.action",
+  "покажи правое ухо": "turtlebro_controller_actions.std_right_ear.action",
+  "покажи уши" : "turtlebro_controller_actions.std_ears.action",
+  "сделай фото": "turtlebro_controller_actions.std_make_photo.action",
+  "поздоровайся": "turtlebro_controller_actions.std_greeting.action",
+  "повернись вправо": "turtlebro_controller_actions.std_turn_right.action",
+  "повернись влево": "turtlebro_controller_actions.std_turn_left.action",
+  "езжай сюда": "turtlebro_controller_actions.std_move_here.action",
+  "езжай отсюда": "turtlebro_controller_actions.std_move_away.action",
+  "следи за шариком": "turtlebro_controller_actions.std_ball_tracker.action",
+}
+
+turtlebro_topic_cmd_vel_name: "/cmd_vel"
+turtlebro_topic_odom_pose2d_name: "/odom_pose2d"

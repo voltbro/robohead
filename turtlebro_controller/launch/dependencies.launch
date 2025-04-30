@@ -1,0 +1,49 @@
+<launch>
+	<group ns="turtlebro_controller">
+
+		<rosparam command="load" file="$(find turtlebro_controller)/config/display_driver.yaml" ns="display_driver"/>
+		<node name="display_driver" pkg="display_driver" type="main.py" output="screen" >
+		</node>
+	
+		<rosparam command="load" file="$(find turtlebro_controller)/config/neck_driver.yaml" ns="neck_driver"/>
+		<node name="neck_driver" pkg="neck_driver" type="main.py" output="screen" >
+		</node>
+
+		<rosparam command="load" file="$(find turtlebro_controller)/config/sensor_driver.yaml" ns="sensor_driver"/>
+		<node name="sensor_driver" pkg="sensor_driver" type="main.py" output="screen" >
+		</node>
+
+		<rosparam command="load" file="$(find turtlebro_controller)/config/ears_driver.yaml" ns="ears_driver"/>
+		<node name="ears_driver" pkg="ears_driver" type="main.py" output="screen" >
+		</node>
+
+		<rosparam command="load" file="$(find turtlebro_controller)/config/speakers_driver.yaml" ns="speakers_driver"/>
+		<node name="speakers_driver" pkg="speakers_driver" type="main.py" output="screen" >
+		</node>
+
+		<node pkg="usb_cam" type="usb_cam_node" name="usb_cam">
+			<param name="video_device" value="0"/>
+			<param name="image_width" value="640"/>
+			<param name="image_height" value="480"/>
+			<param name="framerate" value="25"/>
+			<param name="pixel_format" value="mjpeg"/>
+			<param name="color_format" value="yuv422p"/>
+			<param name="io_method" value="mmap"/>
+		</node>
+
+		<rosparam command="load" file="$(find turtlebro_controller)/config/respeaker_driver.yaml" ns="respeaker_driver"/>
+		<node name="respeaker_driver" pkg="respeaker_driver" type="main.py" output="screen" >
+		</node>
+
+		<group ns="voice_recognizer_pocketsphinx">
+			<rosparam command="load" file="$(find turtlebro_controller)/config/voice_recognizer_pocketsphinx/voice_recognizer_pocketsphinx_kws.yaml" ns="kws_recognizer"/>		
+			<node name="kws_recognizer" pkg="voice_recognizer_pocketsphinx" type="kws_recognizer.py" output="screen" >
+			</node>
+
+			<rosparam command="load" file="$(find turtlebro_controller)/config/voice_recognizer_pocketsphinx/voice_recognizer_pocketsphinx_cmds.yaml" ns="cmds_recognizer"/>		
+			<node name="cmds_recognizer" pkg="voice_recognizer_pocketsphinx" type="cmds_recognizer.py" output="screen" >
+			</node>
+		</group>
+
+	</group>
+</launch>
