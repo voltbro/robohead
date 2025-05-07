@@ -212,6 +212,12 @@ class RoboheadController():
     def start_robohead_controller(self):
         self._execute_action("wait_action")
         self.voice_recognizer_pocketsphinx_kws_srv_IsWork(1)
+        script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
+        msg = PlayAudioRequest()
+        msg.is_blocking = 1
+        msg.is_cycled = 0
+        msg.path_to_file = script_path + "robohead_connected.mp3"
+        self.speakers_driver_srv_PlayAudio(msg)
 
 if __name__ == "__main__":
     rospy.init_node("robohead_controller")
