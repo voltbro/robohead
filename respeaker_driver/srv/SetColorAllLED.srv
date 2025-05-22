@@ -1,0 +1,11 @@
+int16 r 
+int16 g
+int16 b
+# r: 0..255 - red channel
+# b: 0..255 - green channel
+# g: 0..255 - blue channel
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := invalid value

@@ -19,7 +19,15 @@ led:
     - 255 # R-red
     - 255 # G-green
     - 255 # B-blue
-
+  mode: 1
+# modes: 
+# 0 - off
+# 1 - trace
+# 2 - listen
+# 3 - wait
+# 4 - speak
+# 5 - spin
+  
 ros:
   topic_audio_main_name: "~audio/main"
   topic_audio_channel_0_name: "~audio/channel_0"
@@ -29,6 +37,12 @@ ros:
   topic_audio_channel_4_name: "~audio/channel_4"
   topic_audio_channel_5_name: "~audio/channel_5"
   topic_doa_angle_name: "~doa_angle"
+
+  srv_SetBrightnessLED_name: "~SetBrightnessLED"
+  srv_SetColorAllLED_name: "~SetColorAllLED"
+  srv_SetColorPaletteLED_name: "~SetColorPaletteLED"
+  srv_SetModeLED_name: "~SetModeLED"
+  topic_SetColorManualLED_name: "~SetColorManualLED" 
 
   main_channel: 0 # Выбранный канал 0..5 будет дублироваться в топик основного аудио topic_audio_main_name
 

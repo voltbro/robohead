@@ -12,5 +12,5 @@ dict: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/di
 gram_file: "/home/pi/robohead_ws/src/robohead/voice_recognizer_pocketsphinx/config/gram.txt" # путь до файла с грамматикой (описанием возможных команд)
 grammar_name: 'robohead_cmds' # название грамматики, искать в файле грамматики gram_file у ключевого слова grammar. Пример grammar robohead_cmds
 rule_name: 'commands' # Название правила в файле грамматики gram_file, стоит рядом со словом public. Пример: public <cmds> 
-timeout: 3 # количество секунд таймаута, по истечении которых распознавание произойдет принудительно. До таймаута распознавание происходит до прекращения речи
+timeout: 5 # количество секунд таймаута, по истечении которых распознавание произойдет принудительно. До таймаута распознавание происходит до прекращения речи
 lw: 7.5 # параметр в функции jsgf.build_fsg(), default 7.5

@@ -1,0 +1,12 @@
+int8 mode 
+# 0 - off
+# 1 - trace
+# 2 - listen
+# 3 - wait
+# 4 - speak
+# 5 - spin
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := invalid mode

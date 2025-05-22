@@ -1,0 +1,7 @@
+int8 brightness 
+# 0...31 - 32 уровня яркости
+---
+int8 value 
+# Return values:
+#  0    := Success
+# -1    := invalid value
