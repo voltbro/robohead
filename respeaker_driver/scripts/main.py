@@ -136,14 +136,21 @@ class RespeakerDriver():
 
     def _SetColorManualLED_callback(self, msg:SetColorManualLED):
         isCorrect = 1
-        for i in range(36):
-            if 0<=msg.colors[i]<=255:
-                pass
+        new_data = [0]*36
+        for i in range(12):
+            r = int(msg.colors[i].r)
+            g = int(msg.colors[i].g)
+            b = int(msg.colors[i].b)
+            if (0<=r<=255) and (0<=g<=255) and (0<=b<=255):
+                
+                new_data[3*i+0] = r
+                new_data[3*i+1] = g
+                new_data[3*i+2] = b
             else:
                 isCorrect = 0
                 break
         if isCorrect:
-            self.pixel_ring.set_color_manual(data=msg.colors)
+            self.pixel_ring.set_color_manual(data=new_data)
 
     def _SetBrightnessLED_callback(self, request:SetBrightnessLEDRequest):
         response = SetBrightnessLEDResponse()

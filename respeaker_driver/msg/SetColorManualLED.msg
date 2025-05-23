@@ -1,1 +1,1 @@
-int16[36] colors
+std_msgs/ColorRGBA[12] colors
