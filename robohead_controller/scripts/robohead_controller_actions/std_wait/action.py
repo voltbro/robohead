@@ -35,7 +35,7 @@ def run(robohead_controller:RoboheadController, cmds:str): # Обязатель�
     robohead_controller.neck_driver_srv_NeckSetAngle(msg)
 
     msg = PlayAudioRequest()
-    msg.path_to_file = '__BLANK__'
+    msg.path_to_file = ""
     msg.is_blocking = 0
     msg.is_cycled = 0
     robohead_controller.speakers_driver_srv_PlayAudio(msg)

@@ -35,7 +35,7 @@ def run(turtlebro_controller:TurtlebroController, cmds:str): # Обязател�
     turtlebro_controller.neck_driver_srv_NeckSetAngle(msg)
 
     msg = PlayAudioRequest()
-    msg.path_to_file = '__BLANK__'
+    msg.path_to_file = ""
     msg.is_blocking = 0
     msg.is_cycled = 0
     turtlebro_controller.speakers_driver_srv_PlayAudio(msg)
