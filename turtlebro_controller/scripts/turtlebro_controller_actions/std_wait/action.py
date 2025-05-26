@@ -2,7 +2,20 @@ from turtlebro_controller_actions.main import *
 
 def run(turtlebro_controller:TurtlebroController, cmds:str): # Обязательно наличие этой функции, именно она вызывается при голосовой команде
     script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
-    
+
+    msg = SetModeLEDRequest()
+    msg.mode = turtlebro_controller.respeaker_driver_default_led_mode
+    turtlebro_controller.respeaker_driver_srv_SetModeLED(msg)
+
+    msg = SetBrightnessLEDRequest()
+    msg.brightness = turtlebro_controller.respeaker_driver_default_led_brightness
+    turtlebro_controller.respeaker_driver_srv_SetBrightnessLED(msg)
+
+    msg = SetColorPaletteLEDRequest()
+    msg.colorA = turtlebro_controller.respeaker_driver_default_led_A_color
+    msg.colorB = turtlebro_controller.respeaker_driver_default_led_B_color
+    turtlebro_controller.respeaker_driver_srv_SetColorPaletteLED(msg)
+
     msg = PlayMediaRequest()
     msg.is_blocking = 0
     msg.is_cycled = 0

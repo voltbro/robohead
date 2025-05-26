@@ -27,6 +27,11 @@ from sensor_msgs.msg import BatteryState
 # imports for respeaker_driver
 from std_msgs.msg import Int16
 from audio_common_msgs.msg import AudioData
+from respeaker_driver.msg import SetColorManualLED
+from respeaker_driver.srv import SetBrightnessLED, SetBrightnessLEDRequest, SetBrightnessLEDResponse
+from respeaker_driver.srv import SetColorAllLED, SetColorAllLEDRequest, SetColorAllLEDResponse
+from respeaker_driver.srv import SetColorPaletteLED, SetColorPaletteLEDRequest, SetColorPaletteLEDResponse
+from respeaker_driver.srv import SetModeLED, SetModeLEDRequest, SetModeLEDResponse
 
 # imports for voice_recognizer_pocketsphinx
 from voice_recognizer_pocketsphinx.srv import IsWork, IsWorkRequest, IsWorkResponse
@@ -168,6 +173,19 @@ class RoboheadController():
         respeaker_driver_topic_audio_channel_4_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/topic_audio_channel_4_name')[1:]
         respeaker_driver_topic_audio_channel_5_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/topic_audio_channel_5_name')[1:]
         respeaker_driver_topic_doa_angle_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/topic_doa_angle_name')[1:]
+        respeaker_driver_srv_SetBrightnessLED_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/srv_SetBrightnessLED_name')[1:]
+        respeaker_driver_srv_SetColorAllLED_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/srv_SetColorAllLED_name')[1:]
+        respeaker_driver_srv_SetColorPaletteLED_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/srv_SetColorPaletteLED_name')[1:]
+        respeaker_driver_srv_SetModeLED_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/srv_SetModeLED_name')[1:]
+        respeaker_driver_topic_SetColorManualLED_name = "~respeaker_driver/" + rospy.get_param('~respeaker_driver/ros/topic_SetColorManualLED_name')[1:]
+        self.respeaker_driver_default_led_brightness = rospy.get_param('~respeaker_driver/led/brightness')
+        self.respeaker_driver_default_led_mode = rospy.get_param('~respeaker_driver/led/mode')
+        self.respeaker_driver_default_led_A_color = rospy.get_param('~respeaker_driver/led/A_color')
+        self.respeaker_driver_default_led_B_color = rospy.get_param('~respeaker_driver/led/B_color')
+        rospy.wait_for_service(respeaker_driver_srv_SetBrightnessLED_name)
+        rospy.wait_for_service(respeaker_driver_srv_SetColorAllLED_name)
+        rospy.wait_for_service(respeaker_driver_srv_SetColorPaletteLED_name)
+        rospy.wait_for_service(respeaker_driver_srv_SetModeLED_name)
         rospy.wait_for_message(respeaker_driver_topic_audio_main_name, AudioData)
         rospy.wait_for_message(respeaker_driver_topic_audio_channel_0_name, AudioData)
         rospy.wait_for_message(respeaker_driver_topic_audio_channel_1_name, AudioData)
@@ -183,6 +201,11 @@ class RoboheadController():
         self.respeaker_driver_sub_audio_channel_4 = rospy.Subscriber(respeaker_driver_topic_audio_channel_4_name, AudioData, self._respeaker_driver_audio_channel_4_callback)
         self.respeaker_driver_sub_audio_channel_5 = rospy.Subscriber(respeaker_driver_topic_audio_channel_5_name, AudioData, self._respeaker_driver_audio_channel_5_callback)
         self.respeaker_driver_sub_doa_angle = rospy.Subscriber(respeaker_driver_topic_doa_angle_name, Int16, self._respeaker_driver_doa_angle_callback)
+        self.respeaker_driver_pub_SetColorManualLED = rospy.Publisher(respeaker_driver_topic_SetColorManualLED_name, SetColorManualLED, queue_size=1)
+        self.respeaker_driver_srv_SetBrightnessLED = rospy.ServiceProxy(respeaker_driver_srv_SetBrightnessLED_name, SetBrightnessLED)
+        self.respeaker_driver_srv_SetColorAllLED = rospy.ServiceProxy(respeaker_driver_srv_SetColorAllLED_name, SetColorAllLED)
+        self.respeaker_driver_srv_SetColorPaletteLED = rospy.ServiceProxy(respeaker_driver_srv_SetColorPaletteLED_name, SetColorPaletteLED)
+        self.respeaker_driver_srv_SetModeLED = rospy.ServiceProxy(respeaker_driver_srv_SetModeLED_name, SetModeLED)
         rospy.loginfo("robohead_controller: respeaker_driver connected")
 
         # voice_recognizer_pocketsphinx connect

@@ -3,6 +3,10 @@ from robohead_controller_actions.main import *
 def run(robohead_controller:RoboheadController, cmds:str): # Обязательно наличие этой функции, именно она вызывается при голосовой команде
     script_path = os.path.dirname(os.path.abspath(__file__)) + '/'
     
+    msg = SetModeLEDRequest()
+    msg.mode = 4
+    robohead_controller.respeaker_driver_srv_SetModeLED(msg)
+
     msg = PlayMediaRequest()
     msg.is_blocking = 0
     msg.is_cycled = 0
