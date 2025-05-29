@@ -1,0 +1,33 @@
+low_voltage_threshold: 3.3
+low_voltage_hysteresis: 0.2
+
+camera_topic_name: "~usb_cam/image_raw"
+
+robohead_controller_actions_match: { # сопоставление голововой команды из voice_recognizer_pocketsphinx/gram.txt и файла, запускаемого на исполнение
+  "wait_action" : "mors_controller_actions.std_wait.action",
+  "low_bat_action" : "mors_controller_actions.std_low_bat.action",
+  "слушайробот" : "mors_controller_actions.std_attention.action",
+  "покажи левое ухо": "mors_controller_actions.std_left_ear.action",
+  "покажи правое ухо": "mors_controller_actions.std_right_ear.action",
+  "покажи уши" : "mors_controller_actions.std_ears.action",
+  "сделай фото": "mors_controller_actions.std_make_photo.action",
+  "поздоровайся": "mors_controller_actions.std_greeting.action",
+  "повернись вправо": "mors_controller_actions.std_turn_right.action",
+  "повернись влево": "mors_controller_actions.std_turn_left.action",
+  "иди вперёд": "mors_controller_actions.std_move_forward.action",
+  "дай лапу": "mors_controller_actions.std_give_paw.action",
+  "сидеть": "mors_controller_actions.std_sit.action",
+  "лежать": "mors_controller_actions.std_lay.action",
+  "следи за шариком": "mors_controller_actions.std_ball_tracker.action",
+}
+
+mors_srv_robot_action_name: "/robot_action"
+mors_srv_robot_mode_name: "/robot_mode"
+mors_topic_head_cmd_vel_name: "/head/cmd_vel"
+mors_topic_head_status_name: "/head/status"
+mors_topic_radiolink_status_name: "/radiolink/status"
+mors_topic_imu_data_name: "/imu/data"
+
+mors_constraints:
+  max_linear_vel: 1
+  max_angular_vel: 1

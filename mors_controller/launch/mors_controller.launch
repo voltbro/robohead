@@ -1,0 +1,10 @@
+<launch>
+
+	<include file="$(find mors_controller)/launch/dependencies.launch">
+	</include>
+
+	<rosparam command="load" file="$(find mors_controller)/config/mors_controller.yaml" ns="mors_controller"/>
+	<node name="mors_controller" pkg="mors_controller" type="main.py" output="screen" >
+	</node>
+
+</launch>

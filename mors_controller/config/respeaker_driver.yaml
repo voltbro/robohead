@@ -1,0 +1,50 @@
+usb:
+  vendor_id: 0x2886 # vendor_id производителя usb-устройства
+  product_id: 0x0018 # product_id usb-устройства
+  reset_time_sleep: 10 # время ожидания для переинициализации usb устройства после reset 
+  timeout: 8000 # таймаут при передаче данных с/на ReSpeaker 
+
+audio:
+  rate: 16000 # частота дискретизации сигнала с микрофона
+  chunk: 1024 # количество frame в буффере, то же самое что: period, framebuffer и т.д.
+  # используется формат pyaudio.paInt16
+
+led:
+  brightness: 10 # 0..31 яркость светодиодной панели
+  A_color: # цвет светодиода, указывающего направление свечения
+    - 255 # R-red
+    - 0 # G-green
+    - 0 # B-blue
+  B_color: # цвето светодиодов заливки
+    - 255 # R-red
+    - 255 # G-green
+    - 255 # B-blue
+  mode: 1
+# modes: 
+# 0 - off
+# 1 - trace
+# 2 - listen
+# 3 - wait
+# 4 - speak
+# 5 - spin
+  
+ros:
+  topic_audio_main_name: "~audio/main"
+  topic_audio_channel_0_name: "~audio/channel_0"
+  topic_audio_channel_1_name: "~audio/channel_1"
+  topic_audio_channel_2_name: "~audio/channel_2"
+  topic_audio_channel_3_name: "~audio/channel_3"
+  topic_audio_channel_4_name: "~audio/channel_4"
+  topic_audio_channel_5_name: "~audio/channel_5"
+  topic_doa_angle_name: "~doa_angle"
+
+  srv_SetBrightnessLED_name: "~SetBrightnessLED"
+  srv_SetColorAllLED_name: "~SetColorAllLED"
+  srv_SetColorPaletteLED_name: "~SetColorPaletteLED"
+  srv_SetModeLED_name: "~SetModeLED"
+  topic_SetColorManualLED_name: "~SetColorManualLED" 
+
+  main_channel: 0 # Выбранный канал 0..5 будет дублироваться в топик основного аудио topic_audio_main_name
+
+doa_yaw_offset: -90 # смещает нулевое положение doa_angle на doa_yaw_offset градусов. Значение >0 - против часовой стрелки, значение <0 - по часовой стрелке
+
