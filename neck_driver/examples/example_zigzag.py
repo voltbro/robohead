@@ -45,15 +45,27 @@ request.is_blocking = 1
 service_neck(request)
 
 # Двигем головой в стороны
-request.vertical_angle = 0
-request.horizontal_angle = -30
+request.vertical_angle = - 25
+request.horizontal_angle = -25
 request.duration = 1
 request.is_blocking = 1
 service_neck(request)
 
-request.vertical_angle = 0
-request.horizontal_angle = 30
-request.duration = 2
+request.vertical_angle =  25
+request.horizontal_angle = -25
+request.duration = 1
+request.is_blocking = 1
+service_neck(request)
+
+request.vertical_angle =  25
+request.horizontal_angle = 25
+request.duration = 1
+request.is_blocking = 1
+service_neck(request)
+
+request.vertical_angle = - 25
+request.horizontal_angle = 25
+request.duration = 1
 request.is_blocking = 1
 service_neck(request)
 
