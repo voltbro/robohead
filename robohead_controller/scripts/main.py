@@ -120,7 +120,7 @@ class RoboheadController():
         msg = PlayMediaRequest()
         msg.is_blocking=0
         msg.is_cycled=1
-        msg.path_to_file='/home/pi/robohead_ws/src/robohead/robohead_controller/scripts/loading_splash_2.mp4'
+        msg.path_to_file='/home/pi/robohead_ws/src/robohead/robohead_controller/scripts/loading_splash.mp4'
         self.display_driver_srv_PlayMedia(msg)
         rospy.loginfo("robohead_controller: display_driver connected")
 
@@ -149,7 +149,7 @@ class RoboheadController():
         rospy.loginfo("robohead_controller: speakers_driver connected")
 
         # sensor_driver connect
-        self.sensor_driver_bat_voltage = 4.2
+        self.sensor_driver_bat_voltage = 8.42
         self.sensor_driver_bat_current = -2.1
         sensor_driver_topic_name = "~sensor_driver/" + rospy.get_param('~sensor_driver/topic_name')[1:]
         rospy.wait_for_message(sensor_driver_topic_name, BatteryState)

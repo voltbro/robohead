@@ -1,10 +1,10 @@
 service_name: "~NeckSetAngle"
 
-std_vertical_angle: 0
+std_vertical_angle: 20
 std_horizontal_angle: 0
 
-servo_1_channel: 9
-servo_2_channel: 8
+servo_1_channel: 5
+servo_2_channel: 4
 
 servo_1_coef: 0
 servo_2_coef: 0
