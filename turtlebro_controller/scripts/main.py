@@ -124,7 +124,7 @@ class RoboheadController():
         msg = PlayMediaRequest()
         msg.is_blocking=0
         msg.is_cycled=1
-        msg.path_to_file='/home/pi/robohead_ws/src/robohead/robohead_controller/scripts/loading_splash_2.mp4'
+        msg.path_to_file='/home/pi/robohead_ws/src/robohead/robohead_controller/scripts/loading_splash.mp4'
         self.display_driver_srv_PlayMedia(msg)
         rospy.loginfo("robohead_controller: display_driver connected")
 

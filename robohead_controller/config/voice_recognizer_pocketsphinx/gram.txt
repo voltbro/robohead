@@ -6,7 +6,7 @@ public <commands> = <command> ;
 
 <command> = <command_1> | <command_2> | <command_3> | <command_4>;
 
-<command_1> = покажи ( уши | левое ухо | правое ухо ) ;
+<command_1> = покажи ( уши | левое ухо | правое ухо | напряжение ) ;
 <command_2> = поздоровайся ;
 <command_3> = сделай фото ;
 <command_4> = следи за шариком ;
