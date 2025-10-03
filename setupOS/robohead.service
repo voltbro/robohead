@@ -1,6 +1,6 @@
 [Unit]
 Description=Robohead service.
-After=multi-user.target alsa-restore.service avahi-daemon.service cloud-init.service cloud-init.target
+After=multi-user.target alsa-restore.service avahi-daemon.service
 
 [Service]
 Type=simple

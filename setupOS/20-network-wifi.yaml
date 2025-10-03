@@ -10,9 +10,3 @@ network:
                     password: turtlew001
                 TurtleBro5G:
                     password: turtlew001
-        wlan1:
-            dhcp4: true
-            optional: true
-            access-points:
-                mors000:               
-                    password: brobrobro
