@@ -14,4 +14,6 @@ robohead_controller_actions_match: { # сопоставление головов
   "поздоровайся": "robohead_controller_actions.std_greeting.action",
   "следи за шариком": "robohead_controller_actions.std_ball_tracker.action",
   "покажи напряжение": "robohead_controller_actions.std_voltage.action",
+  "осмотрись": "robohead_controller_actions.std_look_around.action",
+  "заверши работу": "robohead_controller_actions.std_shutdown_voice_nav.action",
 }
